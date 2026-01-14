@@ -133,13 +133,13 @@ function CheckoutPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="bg-white rounded-3xl overflow-hidden p-6">
-              <h2 className="text-xl font-semibold mb-4">Order Items</h2>
+            <div className="bg-white rounded-3xl overflow-hidden p-8">
+              <h2 className="text-xl font-semibold mb-6">Order Items</h2>
               <div className="space-y-4">
                 {items.map((item, index) => (
                   <motion.div
                     key={item.key}
-                    className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0"
+                    className="flex items-center justify-between py-5 border-b border-gray-100 last:border-0"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
@@ -215,12 +215,12 @@ function CheckoutPage() {
                 {placing ? 'Placing Order...' : 'Place Order'}
               </Button>
 
-              <button
+              <Button
+                className="w-full h-12 text-base mt-3"
                 onClick={() => window.location.href = config.cartUrl}
-                className="w-full mt-3 text-sm text-gray-500 hover:text-gray-700 transition-colors"
               >
                 Back to Cart
-              </button>
+              </Button>
             </div>
           </motion.div>
         </div>
