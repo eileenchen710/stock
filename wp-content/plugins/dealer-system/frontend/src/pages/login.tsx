@@ -108,11 +108,10 @@ function LoginPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="pt-4"
             >
               <Button
                 type="submit"
-                className="w-full h-11 text-sm font-medium bg-black text-white hover:bg-gray-100 mt-[20px] mb-[20px]"
+                className="w-full h-11 text-sm font-medium bg-black text-white border border-white/20 hover:bg-gray-900 my-5"
               >
                 Sign In
               </Button>
