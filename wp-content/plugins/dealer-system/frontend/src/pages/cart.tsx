@@ -117,7 +117,7 @@ function CartPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm"
+              className="bg-white border border-gray-200 rounded-3xl overflow-hidden"
             >
               <Table>
                 <TableHeader>
@@ -145,7 +145,7 @@ function CartPage() {
                         <TableCell className="font-medium text-gray-900">{item.name}</TableCell>
                         <TableCell className="font-mono text-gray-600">{item.sku}</TableCell>
                         <TableCell>
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getOrderTypeBadgeClass(item.orderType)}`}>
+                          <span className={`inline-flex !px-3 !py-1 text-xs font-medium rounded-full ${getOrderTypeBadgeClass(item.orderType)}`}>
                             {item.orderTypeLabel || 'Stock Order'}
                           </span>
                         </TableCell>
@@ -197,7 +197,7 @@ function CartPage() {
                 {updating === 'all' ? 'Updating...' : 'Update Cart'}
               </Button>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 min-w-[300px]">
+              <div className="rounded-xl p-6 min-w-[300px]">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-gray-500">Total</span>
                   <span className="text-3xl font-bold">

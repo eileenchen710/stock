@@ -147,7 +147,7 @@ function CheckoutPage() {
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{item.name}</p>
                       <p className="text-sm text-gray-500">SKU: {item.sku}</p>
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full mt-1 ${getOrderTypeBadgeClass(item.orderType)}`}>
+                      <span className={`inline-flex !px-3 !py-1 text-xs font-medium rounded-full mt-1 ${getOrderTypeBadgeClass(item.orderType)}`}>
                         {item.orderTypeLabel || 'Stock Order'}
                       </span>
                     </div>
@@ -183,7 +183,7 @@ function CheckoutPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="bg-gray-50 border border-gray-200 rounded-3xl p-6 sticky top-32">
+            <div className="rounded-3xl p-6 sticky top-32">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
 
               <div className="space-y-3 mb-6">
