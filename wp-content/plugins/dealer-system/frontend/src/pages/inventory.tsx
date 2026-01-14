@@ -130,7 +130,7 @@ function InventoryPage() {
 
         {/* Search */}
         <motion.div
-          className="!mb-3 flex justify-center"
+          className="!mb-4 flex justify-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -140,7 +140,7 @@ function InventoryPage() {
             placeholder="Search by SKU or product name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="max-w-md w-full"
+            className="max-w-md w-full !rounded-full"
           />
         </motion.div>
 
@@ -149,7 +149,7 @@ function InventoryPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm"
+          className="bg-white border border-gray-200 rounded-3xl overflow-hidden"
         >
           <Table>
             <TableHeader>
@@ -202,27 +202,22 @@ function InventoryPage() {
                         </select>
                       </TableCell>
                       <TableCell className="text-right">
-                        {product.stock > 0 ? (
-                          <div className="flex items-center justify-end gap-2">
-                            <Input
-                              type="number"
-                              min={1}
-                              max={product.stock}
-                              value={quantities[product.id] || 1}
-                              onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value) || 1)}
-                              className="w-20 h-8 text-center"
-                            />
-                            <Button
-                              size="sm"
-                              onClick={() => handleAddToCart(product)}
-                              disabled={addingToCart === product.id}
-                            >
-                              {addingToCart === product.id ? '...' : 'Add'}
-                            </Button>
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">N/A</span>
-                        )}
+                        <div className="flex items-center justify-end gap-2">
+                          <Input
+                            type="number"
+                            min={1}
+                            value={quantities[product.id] || 1}
+                            onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value) || 1)}
+                            className="w-20 h-8 text-center"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => handleAddToCart(product)}
+                            disabled={addingToCart === product.id}
+                          >
+                            {addingToCart === product.id ? '...' : 'Add'}
+                          </Button>
+                        </div>
                       </TableCell>
                     </motion.tr>
                   )
