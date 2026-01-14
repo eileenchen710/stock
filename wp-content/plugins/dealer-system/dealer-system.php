@@ -277,23 +277,62 @@ add_action('wp_head', function () {
     }
     ?>
     <style>
+        /* Hide theme header and footer for dealers */
+        .site-header,
+        #site-header,
+        header.site-header,
+        .main-navigation,
+        #site-navigation,
+        .site-footer,
+        #site-footer,
+        footer.site-footer,
+        .footer-widgets,
+        .site-info {
+            display: none !important;
+        }
+
+        /* Dealer header bar */
         .dealer-header-bar {
-            background: #23282d;
+            background: #1a1a2e;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         .dealer-header-bar a {
             color: white;
             text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background 0.2s;
         }
         .dealer-header-bar a:hover {
-            text-decoration: underline;
+            background: rgba(255,255,255,0.1);
         }
-        .dealer-nav a {
-            margin-left: 20px;
+        .dealer-nav {
+            display: flex;
+            gap: 5px;
+        }
+        .dealer-welcome {
+            font-weight: 500;
+        }
+
+        /* Main content area */
+        .site-content,
+        #content,
+        .content-area {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+
+        /* Page title */
+        .entry-title {
+            display: none;
         }
     </style>
     <?php
