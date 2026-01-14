@@ -135,11 +135,11 @@ function CheckoutPage() {
           >
             <div className="bg-white rounded-3xl overflow-hidden p-8">
               <h2 className="text-xl font-semibold mb-6">Order Items</h2>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {items.map((item, index) => (
                   <motion.div
                     key={item.key}
-                    className="flex items-center justify-between py-5 border-b border-gray-100 last:border-0"
+                    className="flex items-center justify-between pb-6 border-b border-gray-100 last:border-0 last:pb-0"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
@@ -186,7 +186,7 @@ function CheckoutPage() {
             <div className="rounded-3xl p-6 sticky top-32">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
 
-              <div className="space-y-3 mb-6">
+              <div className="space-y-3 mb-8">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({items.length} items)</span>
                   <span>${total.toFixed(2)}</span>
@@ -195,7 +195,7 @@ function CheckoutPage() {
                   <span>Shipping</span>
                   <span>Calculated later</span>
                 </div>
-                <div className="border-t border-gray-200 pt-3">
+                <div className="border-t border-gray-200 mt-4 pt-4">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold">Total</span>
                     <span className="text-2xl font-bold">
@@ -216,7 +216,7 @@ function CheckoutPage() {
               </Button>
 
               <Button
-                className="w-full h-12 text-base mt-3"
+                className="w-full h-12 text-base mt-4"
                 onClick={() => window.location.href = config.cartUrl}
               >
                 Back to Cart
