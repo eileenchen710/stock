@@ -17,13 +17,32 @@ dealer-system/
 │   ├── src/
 │   │   ├── pages/             # React 页面 (login.tsx, inventory.tsx, cart.tsx, orders.tsx)
 │   │   ├── components/        # React 组件 (ui/, backgrounds/)
-│   │   └── index.css          # 全局 Tailwind 样式
+│   │   └── index.css          # 全局样式 (自定义 CSS 类写在这里)
 │   ├── package.json
 │   └── vite.config.ts
 └── dist/                      # 编译后的文件 (由 npm run build 生成)
     ├── js/                    # 编译后的 JS
     ├── css/                   # 编译后的 CSS
     └── *.png, *.ico           # 静态资源
+```
+
+## WordPress 页面与 Shortcode 映射
+
+| 页面 | Page ID | Shortcode | 说明 |
+|------|---------|-----------|------|
+| Dashboard (首页) | 62 | `[dealer_inventory]` | 库存列表页 |
+| Cart | 7 | `[dealer_cart]` | 购物车页 |
+| Login | 61 | `[dealer_login]` | 登录页 |
+| Orders | - | 通过 WooCommerce endpoint hook | `/my-account/orders/` |
+
+**重要：** 如果页面布局不对，先检查 WordPress 页面内容是否使用了正确的 shortcode！
+
+```bash
+# 检查页面内容
+sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && wp post get 7 --field=post_content"
+
+# 更新页面内容为正确的 shortcode
+sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && wp post update 7 --post_content='[dealer_cart]'"
 ```
 
 ## 代码修改正确流程
@@ -36,7 +55,7 @@ dealer-system/
 #    - frontend/src/components/**/*.tsx (组件)
 #    - frontend/src/index.css (样式)
 
-# 2. 本地 build (重要！)
+# 2. 本地 build (重要！服务器没有 npm)
 cd /Users/chenyalin/Documents/stock/wp-content/plugins/dealer-system/frontend
 npm run build
 
@@ -50,33 +69,22 @@ git push origin main
 sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && git fetch origin && git reset --hard origin/main && wp cache flush && wp breeze purge --cache=all"
 ```
 
-### 方法 2: 修改 PHP 代码
-
-```bash
-# 1. 编辑本地 dealer-system.php
-
-# 2. 提交并推送
-git add -A && git commit -m "描述" && git push origin main
-
-# 3. 服务器拉取并清除缓存
-sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && git pull origin main && wp cache flush && wp breeze purge --cache=all"
-```
-
-### 方法 3: 直接在服务器修改 PHP (紧急情况)
+### 方法 2: 直接在服务器修改 (紧急调试)
 
 ```bash
 # 连接服务器
 sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180
 
-# 编辑文件
-nano /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html/wp-content/plugins/dealer-system/dealer-system.php
+# 进入目录
+cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html
+
+# 编辑 PHP 文件
+nano wp-content/plugins/dealer-system/dealer-system.php
 
 # 清除缓存
-cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html
 wp cache flush && wp breeze purge --cache=all
 
 # ⚠️ 注意：服务器没有 npm，无法 build 前端代码！
-# 前端 React 代码必须在本地 build 后推送
 ```
 
 ## 一键部署命令
@@ -86,43 +94,96 @@ wp cache flush && wp breeze purge --cache=all
 cd /Users/chenyalin/Documents/stock/wp-content/plugins/dealer-system/frontend && npm run build && cd /Users/chenyalin/Documents/stock && git add -A && git commit -m "Update" && git push origin main && sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && git fetch origin && git reset --hard origin/main && wp cache flush && wp breeze purge --cache=all"
 ```
 
-## 清除缓存命令
+## 部署后验证命令
 
 ```bash
-# 在服务器上执行
-wp cache flush                    # WordPress 对象缓存
-wp breeze purge --cache=all       # Breeze 本地缓存 + Varnish
-wp breeze purge --cache=varnish   # 仅 Varnish
+# 检查服务器上的 git 版本
+sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && git log -1 --oneline"
+
+# 检查 CSS 是否包含某个类
+sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "grep 'page-container' /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html/wp-content/plugins/dealer-system/dist/css/style.css"
+
+# 检查 JS 是否包含某个类
+sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "grep -o 'page-container' /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html/wp-content/plugins/dealer-system/dist/js/cart.js"
 ```
 
-## 常见问题
+## 常见问题排查
 
 ### Q: 改了代码但网页没变化？
-1. ✅ 确认已运行 `npm run build` (前端代码必须编译)
-2. ✅ 确认已 `git push` 并在服务器 `git pull`
-3. ✅ 清除服务器缓存 (`wp cache flush && wp breeze purge --cache=all`)
-4. ✅ 浏览器强制刷新 (Ctrl+Shift+R 或 Cmd+Shift+R)
 
-### Q: 为什么 JS/CSS 版本号用 time()？
-PHP 已配置使用 `time()` 作为版本号，每次页面加载都会请求最新文件，避免浏览器缓存问题。
+按顺序检查：
 
-### Q: 服务器上能直接 build 前端吗？
-不能！服务器没有安装 Node.js/npm。前端代码必须在本地 build 后推送。
+1. **本地是否 build 了？**
+   ```bash
+   cd /Users/chenyalin/Documents/stock/wp-content/plugins/dealer-system/frontend && npm run build
+   ```
 
-### Q: Git 冲突怎么办？
-```bash
-# 在服务器上强制重置到远程版本
-git fetch origin && git reset --hard origin/main
+2. **服务器是否拉取了最新代码？**
+   ```bash
+   sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && git log -1 --oneline"
+   ```
+
+3. **服务器缓存是否清除了？**
+   ```bash
+   sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && wp cache flush && wp breeze purge --cache=all"
+   ```
+
+4. **WordPress 页面是否使用了正确的 shortcode？**
+   ```bash
+   # 检查 cart 页面 (ID=7)
+   sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cd /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html && wp post get 7 --field=post_content"
+   # 应该输出: [dealer_cart]
+   # 如果是 WooCommerce block，需要更新为 shortcode
+   ```
+
+5. **CSS 类是否生成了？**
+   ```bash
+   sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "grep '你的类名' /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html/wp-content/plugins/dealer-system/dist/css/style.css"
+   ```
+
+### Q: Tailwind 任意值 (如 `pt-[120px]`) 不生效？
+
+Tailwind v4 的任意值可能不会自动生成 CSS。**解决方案：在 `index.css` 中定义自定义类：**
+
+```css
+/* frontend/src/index.css */
+.page-container {
+  min-height: 100vh;
+  background-color: white;
+  padding-top: 120px;
+  padding-bottom: 80px;
+}
+
+.page-content {
+  width: 100%;
+  max-width: 80vw;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
 ```
 
-## 重要页面 URL
+然后在 React 中使用：
+```tsx
+<div className="page-container">
+  <div className="page-content">
+    ...
+  </div>
+</div>
+```
 
-| 页面 | URL | 条件 |
-|------|-----|------|
-| 登录页 | `/login/` | 未登录用户 |
-| 库存页 | `/inventory/` | 已登录用户 |
-| 购物车 | `/cart/` | 已登录用户 |
-| 订单页 | `/my-account/orders/` | 已登录用户 |
+### Q: 样式被 WordPress 覆盖？
+
+使用 `!` 前缀确保优先级：
+
+```tsx
+// ❌ 可能被覆盖
+<Button className="bg-black text-white" />
+
+// ✅ 使用 ! 前缀
+<Button className="!bg-black !text-white !border !border-white/20" />
+```
 
 ## 技术栈
 
@@ -132,22 +193,11 @@ git fetch origin && git reset --hard origin/main
 - **动画**: Framer Motion
 - **构建**: Vite + esbuild
 
-## 重要：Tailwind 样式优先级
+## 重要页面 URL
 
-WordPress/WooCommerce 主题 CSS 可能会覆盖 Tailwind 样式。**所有 React 组件的关键样式都要用 `!` 前缀来确保优先级：**
-
-```tsx
-// ❌ 错误 - 可能被 WordPress CSS 覆盖
-<Button className="bg-black text-white" />
-
-// ✅ 正确 - 使用 ! 前缀确保优先级
-<Button className="!bg-black !text-white !border !border-white/20" />
-
-// ✅ 输入框示例
-<Input className="!bg-white/10 !border !border-white/10 !text-white" />
-```
-
-**规则：**
-- 背景色、文字颜色、边框等视觉样式加 `!`
-- hover/focus 状态也要加：`hover:!bg-gray-900 focus:!border-white/20`
-- 布局类（flex, w-full, h-11）通常不需要加 `!`
+| 页面 | URL | 条件 |
+|------|-----|------|
+| 登录页 | `/login/` | 未登录用户 |
+| 库存页 (首页) | `/` | 已登录用户 |
+| 购物车 | `/cart/` | 已登录用户 |
+| 订单页 | `/my-account/orders/` | 已登录用户 |
