@@ -130,7 +130,7 @@ function InventoryPage() {
 
         {/* Search */}
         <motion.div
-          className="mb-3 flex justify-center"
+          className="!mb-3 flex justify-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
