@@ -131,3 +131,23 @@ git fetch origin && git reset --hard origin/main
 - **UI 组件**: shadcn/ui (Button, Input, Table)
 - **动画**: Framer Motion
 - **构建**: Vite + esbuild
+
+## 重要：Tailwind 样式优先级
+
+WordPress/WooCommerce 主题 CSS 可能会覆盖 Tailwind 样式。**所有 React 组件的关键样式都要用 `!` 前缀来确保优先级：**
+
+```tsx
+// ❌ 错误 - 可能被 WordPress CSS 覆盖
+<Button className="bg-black text-white" />
+
+// ✅ 正确 - 使用 ! 前缀确保优先级
+<Button className="!bg-black !text-white !border !border-white/20" />
+
+// ✅ 输入框示例
+<Input className="!bg-white/10 !border !border-white/10 !text-white" />
+```
+
+**规则：**
+- 背景色、文字颜色、边框等视觉样式加 `!`
+- hover/focus 状态也要加：`hover:!bg-gray-900 focus:!border-white/20`
+- 布局类（flex, w-full, h-11）通常不需要加 `!`
