@@ -11,6 +11,16 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Disable WooCommerce Coming Soon mode completely
+ */
+add_filter('woocommerce_coming_soon_exclude', '__return_true');
+add_filter('woocommerce_is_coming_soon_page', '__return_false');
+add_action('init', function() {
+    // Remove coming soon template
+    remove_action('template_redirect', array('Automattic\WooCommerce\Admin\Features\LaunchYourStore', 'maybe_show_coming_soon_page'), 10);
+}, 1);
+
+/**
  * Custom logout handler - instant logout without confirmation
  */
 add_action('init', function () {
@@ -333,6 +343,23 @@ add_action('wp_head', function () {
         /* Page title */
         .entry-title {
             display: none;
+        }
+
+        /* Hide sidebar */
+        .sidebar,
+        #secondary,
+        .widget-area,
+        aside.sidebar,
+        .is-right-sidebar,
+        .is-left-sidebar {
+            display: none !important;
+        }
+
+        /* Make content full width */
+        .site-content .content-area,
+        .has-sidebar .site-content .content-area {
+            width: 100% !important;
+            max-width: 100% !important;
         }
     </style>
     <?php
