@@ -156,7 +156,6 @@ function InventoryPage() {
               <TableRow>
                 <TableHead>SKU</TableHead>
                 <TableHead>Product</TableHead>
-                <TableHead>Category</TableHead>
                 <TableHead className="text-right">Stock</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Type</TableHead>
@@ -181,7 +180,6 @@ function InventoryPage() {
                         {product.sku || '-'}
                       </TableCell>
                       <TableCell className="font-medium text-gray-900">{product.name}</TableCell>
-                      <TableCell className="text-gray-500">{product.category}</TableCell>
                       <TableCell className="text-right text-gray-700">{product.stock ?? 'N/A'}</TableCell>
                       <TableCell>
                         <span className={`font-medium ${status.className}`}>
