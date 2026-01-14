@@ -133,7 +133,7 @@ function CheckoutPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden p-6">
+            <div className="bg-white rounded-3xl overflow-hidden p-6">
               <h2 className="text-xl font-semibold mb-4">Order Items</h2>
               <div className="space-y-4">
                 {items.map((item, index) => (
@@ -162,7 +162,7 @@ function CheckoutPage() {
 
             {/* Order Notes */}
             <motion.div
-              className="mt-6 bg-white border border-gray-200 rounded-3xl overflow-hidden p-6"
+              className="mt-6 bg-white rounded-3xl overflow-hidden p-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
