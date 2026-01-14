@@ -150,11 +150,11 @@ add_action('wp_enqueue_scripts', function () {
     }
 
     // Common styles
-    wp_enqueue_style('dealer-react-styles', $dist_url . 'css/style.css', [], '2.0.2');
+    wp_enqueue_style('dealer-react-styles', $dist_url . 'css/style.css', [], '2.0.6');
 
     // Page-specific scripts (ES modules)
     if (is_page('login') && !is_user_logged_in()) {
-        wp_enqueue_script('dealer-login', $dist_url . 'js/login.js', [], '2.0.0', true);
+        wp_enqueue_script('dealer-login', $dist_url . 'js/login.js', [], '2.0.6', true);
         wp_localize_script('dealer-login', 'dealerLogin', [
             'loginUrl' => wc_get_page_permalink('myaccount'),
             'nonce' => wp_create_nonce('woocommerce-login'),
@@ -163,19 +163,19 @@ add_action('wp_enqueue_scripts', function () {
     }
 
     if (is_front_page() && is_user_logged_in()) {
-        wp_enqueue_script('dealer-inventory', $dist_url . 'js/inventory.js', [], '2.0.0', true);
+        wp_enqueue_script('dealer-inventory', $dist_url . 'js/inventory.js', [], '2.0.6', true);
         wp_localize_script('dealer-inventory', 'dealerInventory', dealer_get_inventory_data());
     }
 
     // Cart page
     if (is_cart() && is_user_logged_in()) {
-        wp_enqueue_script('dealer-cart', $dist_url . 'js/cart.js', [], '2.0.0', true);
+        wp_enqueue_script('dealer-cart', $dist_url . 'js/cart.js', [], '2.0.6', true);
         wp_localize_script('dealer-cart', 'dealerCart', dealer_get_cart_data());
     }
 
     // Orders page
     if (is_wc_endpoint_url('orders') && is_user_logged_in()) {
-        wp_enqueue_script('dealer-orders', $dist_url . 'js/orders.js', [], '2.0.0', true);
+        wp_enqueue_script('dealer-orders', $dist_url . 'js/orders.js', [], '2.0.6', true);
         wp_localize_script('dealer-orders', 'dealerOrders', dealer_get_orders_data());
     }
 });
