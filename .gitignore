@@ -1,0 +1,53 @@
+# WordPress Core (we track these for full deployment)
+# Uncomment below if you only want to track wp-content
+# /*.php
+# /wp-admin/
+# /wp-includes/
+# /license.txt
+# /readme.html
+
+# Uploads - too large and user-generated
+wp-content/uploads/
+
+# Cache and temp files
+wp-content/cache/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/backups/
+wp-content/blogs.dir/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+
+# Plugins that should not be tracked
+wp-content/plugins/hello.php
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*~
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build artifacts
+/build/
+/dist/
+
+# Sensitive files
+wp-config-local.php
+*.sql
+*.sql.gz
