@@ -162,7 +162,7 @@ add_action('wp_enqueue_scripts', function () {
         ]);
     }
 
-    if (is_front_page() && is_user_logged_in()) {
+    if (is_page('inventory') && is_user_logged_in()) {
         wp_enqueue_script('dealer-inventory', $dist_url . 'js/inventory.js', [], time(), true);
         wp_localize_script('dealer-inventory', 'dealerInventory', dealer_get_inventory_data());
     }
@@ -715,7 +715,7 @@ add_action('wp_body_open', function () {
             </a>
         </div>
         <nav class="dealer-nav">
-            <a href="<?php echo home_url('/'); ?>" <?php echo is_front_page() ? 'class="active"' : ''; ?>>Inventory</a>
+            <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
             <a href="<?php echo wc_get_cart_url(); ?>">Cart (<?php echo $cart_count; ?>)</a>
             <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
             <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
@@ -767,3 +767,108 @@ add_action('woocommerce_account_orders_endpoint', function () {
         return;
     }
 }, 1);
+
+/**
+ * Homepage landing shortcode
+ */
+add_shortcode('dealer_home', function () {
+    ob_start();
+    ?>
+    <style>
+        .dealer-home-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .dealer-home-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+        .dealer-home-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2;
+        }
+        .dealer-home-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 3;
+            color: white;
+        }
+        .dealer-home-title {
+            font-size: 4.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+        .dealer-home-description {
+            font-size: 1.5rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+        .dealer-home-btn {
+            display: inline-block;
+            margin-top: 2.5rem;
+            padding: 1rem 3rem;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: white;
+            background-color: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 9999px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .dealer-home-btn:hover {
+            background-color: rgba(255,255,255,0.25);
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .dealer-home-title {
+                font-size: 2rem;
+            }
+            .dealer-home-description {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <div class="dealer-home-container">
+        <video 
+            class="dealer-home-video" 
+            autoplay 
+            muted 
+            loop 
+            playsinline
+            preload="none"
+        >
+            <source src="https://assets.zeekrlife.com/videos/1751009481.mp4" type="video/mp4">
+        </video>
+        <div class="dealer-home-overlay"></div>
+        <div class="dealer-home-content">
+            <h1 class="dealer-home-title">Dealer Ordering & Inventory Portal</h1>
+            <p class="dealer-home-description">Manage inventory, place orders, and track fulfillment in one system.</p>
+            <a href="/inventory/" class="dealer-home-btn">Order Now</a>
+        </div>
+    </div>
+    <?php
+    return ob_get_clean();
+});
