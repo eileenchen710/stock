@@ -15,6 +15,8 @@ interface CartItem {
   price: number
   quantity: number
   subtotal: number
+  orderType: string
+  orderTypeLabel: string
 }
 
 declare global {
@@ -78,6 +80,19 @@ function CartPage() {
     }
   }
 
+  const getOrderTypeBadgeClass = (orderType: string) => {
+    switch (orderType) {
+      case 'stock_order':
+        return 'bg-green-100 text-green-700'
+      case 'daily_order':
+        return 'bg-blue-100 text-blue-700'
+      case 'vor_order':
+        return 'bg-purple-100 text-purple-700'
+      default:
+        return 'bg-gray-100 text-gray-700'
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white pb-20">
       <div className="w-full box-border">
@@ -109,6 +124,7 @@ function CartPage() {
                   <TableRow>
                     <TableHead>Product</TableHead>
                     <TableHead>SKU</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead className="text-right">Price</TableHead>
                     <TableHead className="text-center">Quantity</TableHead>
                     <TableHead className="text-right">Subtotal</TableHead>
@@ -128,6 +144,11 @@ function CartPage() {
                       >
                         <TableCell className="font-medium text-gray-900">{item.name}</TableCell>
                         <TableCell className="font-mono text-gray-600">{item.sku}</TableCell>
+                        <TableCell>
+                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getOrderTypeBadgeClass(item.orderType)}`}>
+                            {item.orderTypeLabel || 'Stock Order'}
+                          </span>
+                        </TableCell>
                         <TableCell className="text-right text-gray-700">${item.price.toFixed(2)}</TableCell>
                         <TableCell>
                           <div className="flex items-center justify-center">

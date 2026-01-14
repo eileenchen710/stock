@@ -111,7 +111,8 @@ function LoginPage() {
             >
               <Button
                 type="submit"
-                className="w-full h-11 text-sm font-medium bg-black text-white border border-white/20 hover:bg-gray-900 my-5"
+                variant="dark"
+                className="w-full h-11 my-5"
               >
                 Sign In
               </Button>
