@@ -95,3 +95,20 @@ textarea:focus {
 .stock-out {
   color: #dc2626;
 }
+
+/* Page container layout */
+.page-container {
+  min-height: 100vh;
+  background-color: white;
+  padding-top: 120px;
+  padding-bottom: 80px;
+}
+
+.page-content {
+  width: 100%;
+  max-width: 80vw;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}

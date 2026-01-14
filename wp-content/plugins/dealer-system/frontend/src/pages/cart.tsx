@@ -94,8 +94,8 @@ function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20 pt-[120px]">
-      <div className="w-full max-w-[80vw] mx-auto box-border px-4">
+    <div className="page-container">
+      <div className="page-content">
         {/* Header */}
         <motion.div
           className="mb-8 text-center"
