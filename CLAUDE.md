@@ -87,6 +87,19 @@ wp cache flush && wp breeze purge --cache=all
 # ⚠️ 注意：服务器没有 npm，无法 build 前端代码！
 ```
 
+**⚠️ 重要：服务器直接修改后必须同步到 git！**
+
+```bash
+# 在服务器修改完 PHP 后，立即同步到本地 git：
+sshpass -p 'WAUP9pmdREkD' ssh master_dhkqwtswwh@139.180.160.180 "cat /home/1572916.cloudwaysapps.com/pgehamfrpd/public_html/wp-content/plugins/dealer-system/dealer-system.php" > /Users/chenyalin/Documents/stock/wp-content/plugins/dealer-system/dealer-system.php
+
+# 然后提交
+cd /Users/chenyalin/Documents/stock
+git add -A && git commit -m "Sync server PHP changes" && git push
+```
+
+否则下次 `git reset --hard` 会覆盖服务器上的改动！
+
 ## 一键部署命令
 
 ```bash
