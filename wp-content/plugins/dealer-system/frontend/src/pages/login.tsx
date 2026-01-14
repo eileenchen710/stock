@@ -85,7 +85,12 @@ function LoginPage() {
                 placeholder="Username or Email"
                 required
                 autoComplete="username"
-                className="bg-white/10 border border-white/10 text-white placeholder:text-gray-500 focus:bg-white/15 focus:border-white/20"
+                className="border text-white placeholder:text-gray-500"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#fff',
+                }}
               />
             </motion.div>
 
@@ -100,7 +105,12 @@ function LoginPage() {
                 placeholder="Password"
                 required
                 autoComplete="current-password"
-                className="bg-white/10 border border-white/10 text-white placeholder:text-gray-500 focus:bg-white/15 focus:border-white/20"
+                className="border text-white placeholder:text-gray-500"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#fff',
+                }}
               />
             </motion.div>
 
@@ -111,8 +121,14 @@ function LoginPage() {
             >
               <Button
                 type="submit"
-                variant="dark"
-                className="w-full h-11 my-5"
+                className="w-full h-11"
+                style={{
+                  backgroundColor: '#000',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  marginTop: '20px',
+                  marginBottom: '20px',
+                }}
               >
                 Sign In
               </Button>
