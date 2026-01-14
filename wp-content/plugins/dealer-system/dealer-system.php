@@ -716,7 +716,7 @@ add_action('wp_body_open', function () {
         </div>
         <nav class="dealer-nav">
             <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
-            <a href="<?php echo wc_get_cart_url(); ?>">Cart (<?php echo $cart_count; ?>)</a>
+            <a href="<?php echo wc_get_cart_url(); ?>">Cart</a>
             <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
             <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
         </nav>
