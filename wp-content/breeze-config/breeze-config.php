@@ -134,6 +134,9 @@
   ),
   'exclude_url' => 
   array (
+    0 => '/cart/*',
+    1 => '/checkout/*',
+    2 => '/my-account/*',
   ),
   'wp-user-roles' => 
   array (
@@ -142,6 +145,8 @@
     2 => 'author',
     3 => 'contributor',
     4 => 'subscriber',
+    5 => 'customer',
+    6 => 'shop_manager',
   ),
   'enabled-lazy-load' => '0',
   'use-lazy-load-native' => '0',
