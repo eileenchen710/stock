@@ -11,6 +11,31 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Custom logout handler - instant logout without confirmation
+ */
+add_action('init', function () {
+    // Check for custom logout action
+    if (isset($_GET['dealer_logout']) && $_GET['dealer_logout'] === '1') {
+        // Verify nonce for security
+        if (isset($_GET['_nonce']) && wp_verify_nonce($_GET['_nonce'], 'dealer_logout')) {
+            wp_logout();
+            wp_redirect(home_url('/login/'));
+            exit;
+        }
+    }
+});
+
+/**
+ * Helper function to get dealer logout URL
+ */
+function dealer_logout_url() {
+    return add_query_arg([
+        'dealer_logout' => '1',
+        '_nonce' => wp_create_nonce('dealer_logout')
+    ], home_url('/'));
+}
+
+/**
  * Force login - redirect to login page if not logged in
  */
 add_action('template_redirect', function () {
@@ -288,7 +313,7 @@ add_action('wp_body_open', function () {
             <a href="<?php echo home_url('/'); ?>">Inventory</a>
             <a href="<?php echo wc_get_cart_url(); ?>">Cart (<?php echo WC()->cart->get_cart_contents_count(); ?>)</a>
             <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
-            <a href="<?php echo wp_logout_url(home_url('/login/')); ?>">Logout</a>
+            <a href="<?php echo esc_url(dealer_logout_url()); ?>">Logout</a>
         </nav>
     </div>
     <?php
