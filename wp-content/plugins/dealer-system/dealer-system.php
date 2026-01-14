@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Dealer System
  * Description: Force login and dealer management for stock system
- * Version: 2.0.0
+ * Version: 2.0.6
  * Author: Vygox
  */
 
@@ -283,6 +283,7 @@ function dealer_get_orders_data() {
 
     if ($user_id) {
         $customer_orders = wc_get_orders([
+            'status' => ['pending', 'processing', 'on-hold', 'completed', 'cancelled', 'refunded', 'failed'],
             'customer_id' => $user_id,
             'limit' => 20,
             'orderby' => 'date',
@@ -460,10 +461,7 @@ add_action('wp_head', function () {
         }
 
         /* React root containers - centered flexbox */
-        #dealer-login-root,
-        #dealer-inventory-root,
-        #dealer-cart-root,
-        #dealer-orders-root {
+        #dealer-login-root {
             min-height: 100vh;
             width: 100% !important;
             max-width: 100vw !important;
@@ -474,13 +472,32 @@ add_action('wp_head', function () {
             overflow-x: hidden !important;
         }
 
+        #dealer-inventory-root,
+        #dealer-cart-root,
+        #dealer-orders-root {
+            min-height: 100vh;
+            width: 80vw !important;
+            max-width: 80vw !important;
+            margin: 0 auto !important;
+            padding-top: 120px !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            overflow-x: hidden !important;
+        }
+
         /* Ensure children of root containers are constrained */
-        #dealer-login-root > div,
+        #dealer-login-root > div {
+            width: 100% !important;
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+
         #dealer-inventory-root > div,
         #dealer-cart-root > div,
         #dealer-orders-root > div {
             width: 100% !important;
-            max-width: 100vw !important;
             box-sizing: border-box !important;
         }
     </style>
