@@ -130,7 +130,7 @@ function InventoryPage() {
 
         {/* Search */}
         <motion.div
-          className="mb-8 flex justify-center"
+          className="mb-3 flex justify-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -192,7 +192,7 @@ function InventoryPage() {
                         <select
                           value={selectedType}
                           onChange={(e) => handleOrderTypeChange(product.id, e.target.value as OrderType)}
-                          className="h-8 px-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                          className="h-10 px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                         >
                           {Object.entries(ORDER_TYPE_LABELS).map(([value, label]) => (
                             <option key={value} value={value}>
