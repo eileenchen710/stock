@@ -744,7 +744,31 @@ add_action('wp_head', function () {
 
         #dealer-inventory-root,
         #dealer-cart-root,
-        #dealer-orders-root,
+        #dealer-orders-root {
+            min-height: 100vh;
+            width: 80vw !important;
+            max-width: 80vw !important;
+            margin: 0 auto !important;
+            padding-top: 120px !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            overflow-x: hidden !important;
+        }
+
+        /* Hide WooCommerce checkout elements when React checkout is active */
+        .woocommerce-checkout .woocommerce-form-coupon-toggle,
+        .woocommerce-checkout .woocommerce-form-coupon,
+        .woocommerce-checkout #customer_details,
+        .woocommerce-checkout #order_review,
+        .woocommerce-checkout .woocommerce-checkout-review-order,
+        .woocommerce-checkout .woocommerce-NoticeGroup,
+        .woocommerce-checkout .checkout.woocommerce-checkout {
+            display: none !important;
+        }
+
+
         #dealer-checkout-root {
             min-height: 100vh;
             width: 80vw !important;
@@ -1025,4 +1049,25 @@ add_shortcode('dealer_home', function () {
     </div>
     <?php
     return ob_get_clean();
+});
+
+/**
+ * Replace WooCommerce checkout with React checkout for dealers
+ */
+add_action('woocommerce_before_checkout_form', function() {
+    $user = wp_get_current_user();
+    if (in_array('dealer', (array) $user->roles)) {
+        echo '<div id="dealer-checkout-root"></div>';
+        // Remove default checkout form
+        remove_action('woocommerce_checkout_order_review', 'woocommerce_order_review', 10);
+        remove_action('woocommerce_checkout_order_review', 'woocommerce_checkout_payment', 20);
+    }
+}, 1);
+
+add_filter('woocommerce_checkout_show_terms', function($show) {
+    $user = wp_get_current_user();
+    if (in_array('dealer', (array) $user->roles)) {
+        return false;
+    }
+    return $show;
 });
