@@ -203,64 +203,107 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
  * Get inventory data for React
  */
 function dealer_get_inventory_data() {
-    if (!function_exists('wc_get_product')) {
-        return ['products' => [], 'cartUrl' => '/', 'nonce' => '', 'ajaxUrl' => ''];
-    }
+    return [
+        'products' => [],
+        'cartUrl' => wc_get_cart_url(),
+        'nonce' => wp_create_nonce('wc_store_api'),
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'addToCartNonce' => wp_create_nonce('dealer_add_to_cart'),
+        'searchNonce' => wp_create_nonce('dealer_search_products')
+    ];
+}
 
-    $products = [];
+/**
+ * Helper function to format product data
+ */
+function dealer_format_product($product_id) {
+    $product = wc_get_product($product_id);
+    if (!$product) return null;
+
+    // Get order type prices
+    $stock_price = (float) get_post_meta($product_id, '_stock_order_price', true);
+    $daily_price = (float) get_post_meta($product_id, '_daily_order_price', true);
+    $vor_price = (float) get_post_meta($product_id, '_vor_order_price', true);
+
+    // Fallback to regular price if not set
+    $default_price = (float) $product->get_price();
+    if ($stock_price <= 0) $stock_price = $default_price;
+    if ($daily_price <= 0) $daily_price = $default_price;
+    if ($vor_price <= 0) $vor_price = $default_price;
+
+    return [
+        'id' => $product_id,
+        'sku' => $product->get_sku() ?: '',
+        'name' => get_the_title($product_id),
+        'stock' => (int) $product->get_stock_quantity(),
+        'prices' => [
+            'stock_order' => $stock_price,
+            'daily_order' => $daily_price,
+            'vor_order' => $vor_price,
+        ],
+    ];
+}
+
+/**
+ * AJAX handler for searching products with pagination
+ */
+add_action('wp_ajax_dealer_search_products', function() {
+    check_ajax_referer('dealer_search_products', 'nonce');
+
+    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+    $page = isset($_POST['page']) ? max(1, intval($_POST['page'])) : 1;
+    $per_page = 50;
 
     $args = [
         'post_type' => 'product',
-        'posts_per_page' => -1,
+        'posts_per_page' => $per_page,
+        'paged' => $page,
         'post_status' => 'publish',
+        'orderby' => 'title',
+        'order' => 'ASC',
     ];
 
+    // If search term provided, search by SKU or title
+    if (!empty($search)) {
+        $args['meta_query'] = [
+            'relation' => 'OR',
+            [
+                'key' => '_sku',
+                'value' => $search,
+                'compare' => 'LIKE'
+            ]
+        ];
+        $args['s'] = $search;
+        // Remove pagination for search to show all results
+        $args['posts_per_page'] = 100;
+        unset($args['paged']);
+    }
+
     $query = new WP_Query($args);
+    $products = [];
 
     while ($query->have_posts()) {
         $query->the_post();
-        $product = wc_get_product(get_the_ID());
-
-        if (!$product) continue;
-
-        $product_id = get_the_ID();
-        $categories = wp_get_post_terms($product_id, 'product_cat', ['fields' => 'names']);
-
-        // Get order type prices
-        $stock_price = (float) get_post_meta($product_id, '_stock_order_price', true);
-        $daily_price = (float) get_post_meta($product_id, '_daily_order_price', true);
-        $vor_price = (float) get_post_meta($product_id, '_vor_order_price', true);
-
-        // Fallback to regular price if not set
-        $default_price = (float) $product->get_price();
-        if ($stock_price <= 0) $stock_price = $default_price;
-        if ($daily_price <= 0) $daily_price = $default_price;
-        if ($vor_price <= 0) $vor_price = $default_price;
-
-        $products[] = [
-            'id' => $product_id,
-            'sku' => $product->get_sku() ?: '',
-            'name' => get_the_title(),
-            'stock' => (int) $product->get_stock_quantity(),
-            'category' => !empty($categories) ? $categories[0] : 'Uncategorized',
-            'prices' => [
-                'stock_order' => $stock_price,
-                'daily_order' => $daily_price,
-                'vor_order' => $vor_price,
-            ],
-        ];
+        $formatted = dealer_format_product(get_the_ID());
+        if ($formatted) {
+            $products[] = $formatted;
+        }
     }
 
     wp_reset_postdata();
 
-    return [
+    // Get total count for pagination (only when not searching)
+    $total = empty($search) ? $query->found_posts : count($products);
+    $total_pages = empty($search) ? ceil($total / $per_page) : 1;
+
+    wp_send_json_success([
         'products' => $products,
-        'cartUrl' => wc_get_cart_url(),
-        'nonce' => wp_create_nonce('wc_store_api'),
-        'ajaxUrl' => admin_url('admin-ajax.php'),
-        'addToCartNonce' => wp_create_nonce('dealer_add_to_cart')
-    ];
-}
+        'total' => $total,
+        'page' => $page,
+        'total_pages' => $total_pages,
+        'has_more' => empty($search) && $page < $total_pages
+    ]);
+});
 
 /**
  * AJAX handler for adding product to cart with order type
