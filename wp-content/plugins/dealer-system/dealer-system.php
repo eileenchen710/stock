@@ -806,8 +806,7 @@ add_action('wp_head', function () {
         }
 
         #dealer-inventory-root,
-        #dealer-cart-root,
-        #dealer-orders-root {
+        #dealer-cart-root {
             min-height: 100vh;
             width: 80vw !important;
             max-width: 80vw !important;
@@ -833,6 +832,77 @@ add_action('wp_head', function () {
         }
         }
 
+        /* Order Pay page styles */
+        body.woocommerce-order-pay .woocommerce {
+            width: 100%;
+            max-width: 80vw;
+            margin: 0 auto;
+            padding: 120px 16px 80px 16px;
+            box-sizing: border-box;
+        }
+
+        body.woocommerce-order-pay .woocommerce h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 32px;
+        }
+
+        body.woocommerce-order-pay .woocommerce table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        body.woocommerce-order-pay .woocommerce table th,
+        body.woocommerce-order-pay .woocommerce table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.woocommerce-order-pay .woocommerce table thead {
+            background-color: #f9fafb;
+        }
+
+        body.woocommerce-order-pay .woocommerce #payment {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+        }
+
+        body.woocommerce-order-pay .woocommerce #payment .payment_methods {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 16px 0;
+        }
+
+        body.woocommerce-order-pay .woocommerce #payment .payment_methods li {
+            padding: 12px 0;
+        }
+
+        body.woocommerce-order-pay .woocommerce #payment .payment_methods label {
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        body.woocommerce-order-pay .woocommerce #payment #place_order {
+            width: 100%;
+            background: #111827;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        body.woocommerce-order-pay .woocommerce #payment #place_order:hover {
+            background: #374151;
+        }
 
         #dealer-checkout-root {
             min-height: 100vh;
@@ -857,7 +927,7 @@ add_action('wp_head', function () {
 
         #dealer-inventory-root > div,
         #dealer-cart-root > div,
-        #dealer-orders-root > div,
+
         #dealer-checkout-root > div {
             width: 100% !important;
             box-sizing: border-box !important;
@@ -1166,19 +1236,22 @@ add_filter('woocommerce_locate_template', function ($template, $template_name) {
 /**
  * Replace WooCommerce orders with React orders for dealers
  */
-// Wrap orders page content in dealer container
+// Add dealer orders page wrapper with header and table container
 add_action('woocommerce_account_orders_endpoint', function () {
     $user = wp_get_current_user();
     if (in_array('dealer', (array) $user->roles)) {
-        echo '<div id="dealer-orders-root">';
+        echo '<div class="dealer-orders-page">';
+        echo '<div id="dealer-orders-header"></div>';
+        echo '<div class="dealer-orders-table-wrapper">';
     }
 }, 1);
 
-// Close the dealer container after WooCommerce content
+// Close the dealer orders containers after WooCommerce content
 add_action('woocommerce_account_orders_endpoint', function () {
     $user = wp_get_current_user();
     if (in_array('dealer', (array) $user->roles)) {
-        echo '</div>';
+        echo '</div>'; // close table-wrapper
+        echo '</div>'; // close dealer-orders-page
     }
 }, 99);
 
@@ -1342,7 +1415,7 @@ add_filter("woocommerce_available_payment_gateways", function($gateways) {
     $user = wp_get_current_user();
     if (in_array("dealer", (array) $user->roles)) {
         foreach ($gateways as $key => $gateway) {
-            if ($key !== "yith-account-funds") {
+            if ($key !== "yith_funds") {
                 unset($gateways[$key]);
             }
         }

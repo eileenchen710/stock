@@ -127,7 +127,7 @@ textarea:focus {
 }
 
 /* Orders page container */
-#dealer-orders-root {
+.dealer-orders-page {
   width: 100%;
   max-width: 80vw;
   margin: 0 auto;
@@ -136,9 +136,14 @@ textarea:focus {
 }
 
 /* Orders page header */
-.orders-header-container {
+#dealer-orders-header {
   width: 100%;
   margin-bottom: 32px;
+}
+
+/* Orders table wrapper */
+.dealer-orders-table-wrapper {
+  width: 100%;
 }
 
 .woocommerce-orders-table {
@@ -210,7 +215,7 @@ textarea:focus {
 }
 
 @media (max-width: 768px) {
-  #dealer-orders-root {
+  .dealer-orders-page {
     max-width: 100%;
     padding: 80px 12px 40px 12px;
   }
