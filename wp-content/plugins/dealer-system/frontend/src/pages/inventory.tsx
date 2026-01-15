@@ -169,12 +169,6 @@ function InventoryPage() {
     }
   }
 
-  const getStockStatus = (stock: number) => {
-    if (stock <= 0) return { text: 'Out of Stock', className: 'text-red-600' }
-    if (stock <= 10) return { text: 'Low Stock', className: 'text-amber-600' }
-    return { text: 'In Stock', className: 'text-green-600' }
-  }
-
   const handleQuantityChange = (productId: number, value: number) => {
     setQuantities(prev => ({ ...prev, [productId]: value }))
   }
@@ -384,8 +378,6 @@ function InventoryPage() {
                   <TableRow>
                     <TableHead>SKU</TableHead>
                     <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Stock</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead className="text-right">Order</TableHead>
                   </TableRow>
@@ -393,7 +385,6 @@ function InventoryPage() {
                 <TableBody>
                   <AnimatePresence>
                     {products.map((product, index) => {
-                      const status = getStockStatus(product.stock)
                       const selectedType = orderTypes[product.id] || 'stock_order'
                       return (
                         <motion.tr
@@ -408,12 +399,6 @@ function InventoryPage() {
                             {product.sku || '-'}
                           </TableCell>
                           <TableCell className="font-medium text-gray-900">{product.name}</TableCell>
-                          <TableCell className="text-right text-gray-700">{product.stock ?? 'N/A'}</TableCell>
-                          <TableCell>
-                            <span className={`font-medium ${status.className}`}>
-                              {status.text}
-                            </span>
-                          </TableCell>
                           <TableCell>
                             <select
                               value={selectedType}
