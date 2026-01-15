@@ -1359,6 +1359,15 @@ add_action('wp_body_open', function () {
             padding-top: 0 !important;
             overflow-x: hidden;
         }
+        /* WordPress admin bar adjustment */
+        .admin-bar .dealer-header-bar {
+            top: 52px; /* 20px + 32px admin bar */
+        }
+        @media (max-width: 782px) {
+            .admin-bar .dealer-header-bar {
+                top: 62px; /* 16px + 46px mobile admin bar */
+            }
+        }
     </style>
     <div class="dealer-nav-overlay" onclick="closeDealerMenu()"></div>
     <div class="dealer-header-bar">
