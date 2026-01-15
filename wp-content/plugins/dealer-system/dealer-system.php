@@ -904,6 +904,72 @@ add_action('wp_head', function () {
             background: #374151;
         }
 
+        /* Order Received (Thank You) page styles */
+        body.woocommerce-order-received .woocommerce {
+            width: 100%;
+            max-width: 80vw;
+            margin: 0 auto;
+            padding: 120px 16px 80px 16px;
+            box-sizing: border-box;
+        }
+
+        body.woocommerce-order-received .woocommerce .woocommerce-order {
+            text-align: center;
+        }
+
+        body.woocommerce-order-received .woocommerce .woocommerce-thankyou-order-received {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 32px;
+            color: #111827;
+        }
+
+        body.woocommerce-order-received .woocommerce .woocommerce-order-overview {
+            list-style: none;
+            padding: 24px;
+            margin: 0 0 32px 0;
+            background: #f9fafb;
+            border-radius: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 32px;
+        }
+
+        body.woocommerce-order-received .woocommerce .woocommerce-order-overview li {
+            text-align: center;
+        }
+
+        body.woocommerce-order-received .woocommerce .woocommerce-order-overview li strong {
+            display: block;
+            font-size: 1.25rem;
+            color: #111827;
+        }
+
+        body.woocommerce-order-received .woocommerce h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+            text-align: left;
+        }
+
+        body.woocommerce-order-received .woocommerce table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        body.woocommerce-order-received .woocommerce table th,
+        body.woocommerce-order-received .woocommerce table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.woocommerce-order-received .woocommerce table thead {
+            background-color: #f9fafb;
+        }
+
         #dealer-checkout-root {
             min-height: 100vh;
             width: 80vw !important;
