@@ -126,22 +126,19 @@ textarea:focus {
   }
 }
 
-/* Orders page header */
-.orders-header-container {
+/* Orders page container */
+#dealer-orders-root {
   width: 100%;
   max-width: 80vw;
   margin: 0 auto;
-  padding: 100px 16px 0 16px;
+  padding: 100px 16px 80px 16px;
   box-sizing: border-box;
 }
 
-/* WooCommerce Orders Table Styles */
-.woocommerce-MyAccount-content {
+/* Orders page header */
+.orders-header-container {
   width: 100%;
-  max-width: 80vw;
-  margin: 0 auto;
-  padding: 0 16px;
-  box-sizing: border-box;
+  margin-bottom: 32px;
 }
 
 .woocommerce-orders-table {
@@ -213,12 +210,8 @@ textarea:focus {
 }
 
 @media (max-width: 768px) {
-  .orders-header-container {
+  #dealer-orders-root {
     max-width: 100%;
-    padding: 80px 12px 0 12px;
-  }
-  .woocommerce-MyAccount-content {
-    max-width: 100%;
-    padding: 0 12px;
+    padding: 80px 12px 40px 12px;
   }
 }

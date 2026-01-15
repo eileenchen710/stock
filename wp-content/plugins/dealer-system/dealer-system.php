@@ -1166,13 +1166,21 @@ add_filter('woocommerce_locate_template', function ($template, $template_name) {
 /**
  * Replace WooCommerce orders with React orders for dealers
  */
+// Wrap orders page content in dealer container
 add_action('woocommerce_account_orders_endpoint', function () {
     $user = wp_get_current_user();
     if (in_array('dealer', (array) $user->roles)) {
-        echo '<div id="dealer-orders-root"></div>';
-        return;
+        echo '<div id="dealer-orders-root">';
     }
 }, 1);
+
+// Close the dealer container after WooCommerce content
+add_action('woocommerce_account_orders_endpoint', function () {
+    $user = wp_get_current_user();
+    if (in_array('dealer', (array) $user->roles)) {
+        echo '</div>';
+    }
+}, 99);
 
 /**
  * Homepage landing shortcode
