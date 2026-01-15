@@ -773,6 +773,19 @@ add_action('wp_head', function () {
             display: none !important;
         }
 
+        /* Hide product images in order details */
+        .woocommerce-table--order-details .product-thumbnail,
+        .woocommerce-table--order-details td.product-thumbnail,
+        .woocommerce-table--order-details th.product-thumbnail,
+        .woocommerce-order-details .product-thumbnail,
+        .order_details .product-thumbnail,
+        .shop_table .product-thumbnail,
+        .woocommerce-cart-form .product-thumbnail,
+        .woocommerce img.attachment-woocommerce_thumbnail,
+        .woocommerce-order img.wp-post-image {
+            display: none !important;
+        }
+
         /* React root containers - centered flexbox */
         #dealer-login-root {
             min-height: 100vh;
