@@ -1544,17 +1544,27 @@ add_shortcode('dealer_home', function () {
             overflow: hidden;
             z-index: 1;
         }
-        .dealer-home-video {
+        .dealer-home-video,
+        .dealer-home-poster {
             position: absolute;
             top: 50%;
             left: 50%;
             min-width: 100%;
             min-height: 100%;
-            width: max-content;
-            gap: 24px;
+            width: auto;
             height: auto;
             transform: translate(-50%, -50%);
             object-fit: cover;
+        }
+        .dealer-home-video {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .dealer-home-video.ready {
+            opacity: 1;
+        }
+        .dealer-home-poster {
+            z-index: 0;
         }
         .dealer-home-overlay {
             position: absolute;
@@ -1623,13 +1633,19 @@ add_shortcode('dealer_home', function () {
         }
     </style>
     <div class="dealer-home-container">
-        <video 
-            class="dealer-home-video" 
-            autoplay 
-            muted 
-            loop 
+        <img
+            class="dealer-home-poster"
+            src="https://www.datocms-assets.com/130529/1754481414-tablet-home-page.jpg?auto=format"
+            alt="ZEEKR"
+        >
+        <video
+            id="dealer-home-video"
+            class="dealer-home-video"
+            autoplay
+            muted
+            loop
             playsinline
-            preload="none"
+            preload="auto"
         >
             <source src="https://assets.zeekrlife.com/videos/1751009481.mp4" type="video/mp4">
         </video>
@@ -1640,6 +1656,20 @@ add_shortcode('dealer_home', function () {
             <a href="/inventory/" class="dealer-home-btn">Order Now</a>
         </div>
     </div>
+    <script>
+        (function() {
+            var video = document.getElementById('dealer-home-video');
+            if (video) {
+                video.addEventListener('canplay', function() {
+                    video.classList.add('ready');
+                });
+                // In case video is already ready
+                if (video.readyState >= 3) {
+                    video.classList.add('ready');
+                }
+            }
+        })();
+    </script>
     <?php
     return ob_get_clean();
 });
