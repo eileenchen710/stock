@@ -166,11 +166,9 @@ function CartPage() {
                         </TableCell>
                         <TableCell>
                           <Button
-                            variant="ghost"
                             size="sm"
                             onClick={() => handleRemoveItem(item.key)}
                             disabled={removing === item.key}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             {removing === item.key ? '...' : 'Remove'}
                           </Button>
@@ -190,7 +188,6 @@ function CartPage() {
               transition={{ delay: 0.2 }}
             >
               <Button
-                variant="secondary"
                 onClick={handleUpdateCart}
                 disabled={updating === 'all'}
               >
