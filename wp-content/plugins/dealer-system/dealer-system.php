@@ -1798,3 +1798,29 @@ add_action('wp_ajax_dealer_update_cart_item', function() {
         wp_send_json_error(['message' => 'Could not update cart']);
     }
 });
+
+/**
+ * Style order status as colored badges in orders table
+ */
+add_filter('woocommerce_my_account_my_orders_columns', function($columns) {
+    return $columns;
+});
+
+add_action('woocommerce_my_account_my_orders_column_order-status', function($order) {
+    $status = $order->get_status();
+    $status_name = wc_get_order_status_name($status);
+    
+    $colors = [
+        'pending' => 'background:#fef3c7;color:#d97706;',
+        'processing' => 'background:#dbeafe;color:#2563eb;',
+        'on-hold' => 'background:#ffedd5;color:#ea580c;',
+        'completed' => 'background:#dcfce7;color:#16a34a;',
+        'cancelled' => 'background:#fee2e2;color:#dc2626;',
+        'refunded' => 'background:#f3f4f6;color:#6b7280;',
+        'failed' => 'background:#fee2e2;color:#dc2626;',
+    ];
+    
+    $style = $colors[$status] ?? 'background:#f3f4f6;color:#6b7280;';
+    
+    echo '<span style="display:inline-block;padding:6px 12px;border-radius:9999px;font-size:12px;font-weight:600;' . $style . '">' . esc_html($status_name) . '</span>';
+}, 10);
