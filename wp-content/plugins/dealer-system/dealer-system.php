@@ -256,47 +256,94 @@ add_action('wp_ajax_dealer_search_products', function() {
     $page = isset($_POST['page']) ? max(1, intval($_POST['page'])) : 1;
     $per_page = 50;
 
-    $args = [
-        'post_type' => 'product',
-        'posts_per_page' => $per_page,
-        'paged' => $page,
-        'post_status' => 'publish',
-        'orderby' => 'title',
-        'order' => 'ASC',
-    ];
-
-    // If search term provided, search by SKU or title
-    if (!empty($search)) {
-        $args['meta_query'] = [
-            'relation' => 'OR',
-            [
-                'key' => '_sku',
-                'value' => $search,
-                'compare' => 'LIKE'
-            ]
-        ];
-        $args['s'] = $search;
-        // Remove pagination for search to show all results
-        $args['posts_per_page'] = 100;
-        unset($args['paged']);
-    }
-
-    $query = new WP_Query($args);
     $products = [];
 
-    while ($query->have_posts()) {
-        $query->the_post();
-        $formatted = dealer_format_product(get_the_ID());
-        if ($formatted) {
-            $products[] = $formatted;
+    if (!empty($search)) {
+        // Search by title
+        $title_args = [
+            'post_type' => 'product',
+            'posts_per_page' => 100,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC',
+            's' => $search,
+        ];
+        $title_query = new WP_Query($title_args);
+        $found_ids = [];
+
+        while ($title_query->have_posts()) {
+            $title_query->the_post();
+            $id = get_the_ID();
+            $found_ids[$id] = true;
+            $formatted = dealer_format_product($id);
+            if ($formatted) {
+                $products[] = $formatted;
+            }
         }
+        wp_reset_postdata();
+
+        // Search by SKU
+        $sku_args = [
+            'post_type' => 'product',
+            'posts_per_page' => 100,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC',
+            'meta_query' => [
+                [
+                    'key' => '_sku',
+                    'value' => $search,
+                    'compare' => 'LIKE'
+                ]
+            ]
+        ];
+        $sku_query = new WP_Query($sku_args);
+
+        while ($sku_query->have_posts()) {
+            $sku_query->the_post();
+            $id = get_the_ID();
+            // Avoid duplicates
+            if (!isset($found_ids[$id])) {
+                $formatted = dealer_format_product($id);
+                if ($formatted) {
+                    $products[] = $formatted;
+                }
+            }
+        }
+        wp_reset_postdata();
+
+        // Sort by name
+        usort($products, function($a, $b) {
+            return strcasecmp($a['name'], $b['name']);
+        });
+
+        $total = count($products);
+        $total_pages = 1;
+    } else {
+        // No search - paginated results
+        $args = [
+            'post_type' => 'product',
+            'posts_per_page' => $per_page,
+            'paged' => $page,
+            'post_status' => 'publish',
+            'orderby' => 'title',
+            'order' => 'ASC',
+        ];
+
+        $query = new WP_Query($args);
+
+        while ($query->have_posts()) {
+            $query->the_post();
+            $formatted = dealer_format_product(get_the_ID());
+            if ($formatted) {
+                $products[] = $formatted;
+            }
+        }
+        wp_reset_postdata();
+
+        $total = $query->found_posts;
+        $total_pages = ceil($total / $per_page);
     }
-
-    wp_reset_postdata();
-
-    // Get total count for pagination (only when not searching)
-    $total = empty($search) ? $query->found_posts : count($products);
-    $total_pages = empty($search) ? ceil($total / $per_page) : 1;
 
     wp_send_json_success([
         'products' => $products,
