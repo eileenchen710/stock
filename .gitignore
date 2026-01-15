@@ -51,3 +51,10 @@ yarn-error.log
 wp-config-local.php
 *.sql
 *.sql.gz
+
+# Commercial/Premium plugins
+wp-content/plugins/yith-woocommerce-account-funds-premium/
+wp-content/plugins/yith_activate/
+
+# Import data files
+wp-content/import-products.csv
