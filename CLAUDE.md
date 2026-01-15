@@ -188,7 +188,7 @@ Tailwind v4 的任意值可能不会自动生成 CSS。**解决方案：在 `ind
 
 ### Q: 样式被 WordPress 覆盖？
 
-使用 `!` 前缀确保优先级：
+**方法 1: 使用 `!` 前缀**
 
 ```tsx
 // ❌ 可能被覆盖
@@ -197,6 +197,28 @@ Tailwind v4 的任意值可能不会自动生成 CSS。**解决方案：在 `ind
 // ✅ 使用 ! 前缀
 <Button className="!bg-black !text-white !border !border-white/20" />
 ```
+
+**方法 2: 使用 inline style (当 `!` 前缀无效时)**
+
+当 Tailwind 的 `!` 前缀仍然被 WordPress 覆盖时，使用 inline `style={{}}` 属性来确保样式生效：
+
+```tsx
+// ❌ Tailwind class 可能被覆盖
+<div className="pt-5 pb-5 border-b border-gray-100">
+
+// ✅ 使用 inline style 确保生效
+<div style={{ paddingTop: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}>
+
+// ✅ 也可以混合使用
+<div
+  style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+  className="other-classes"
+>
+```
+
+**优先级顺序：** inline style > `!important` > 普通 CSS
+
+**⚠️ 注意：** 这种情况常见于 spacing 类 (padding, margin, gap) 和 border 类，因为 WordPress 主题通常会覆盖这些样式。
 
 ## 技术栈
 

@@ -125,3 +125,100 @@ textarea:focus {
     padding-right: 12px;
   }
 }
+
+/* Orders page header */
+.orders-header-container {
+  width: 100%;
+  max-width: 80vw;
+  margin: 0 auto;
+  padding: 100px 16px 0 16px;
+  box-sizing: border-box;
+}
+
+/* WooCommerce Orders Table Styles */
+.woocommerce-MyAccount-content {
+  width: 100%;
+  max-width: 80vw;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.woocommerce-orders-table {
+  width: 100% !important;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.woocommerce-orders-table thead {
+  background-color: #f9fafb;
+}
+
+.woocommerce-orders-table th,
+.woocommerce-orders-table td {
+  padding: 16px !important;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.woocommerce-orders-table th {
+  font-weight: 600;
+  color: #374151;
+}
+
+.woocommerce-orders-table td {
+  color: #4b5563;
+}
+
+.woocommerce-orders-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.woocommerce-orders-table .woocommerce-button {
+  display: inline-block;
+  padding: 8px 16px !important;
+  margin: 4px !important;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.woocommerce-orders-table .woocommerce-button.pay {
+  background-color: #111827;
+  color: white !important;
+}
+
+.woocommerce-orders-table .woocommerce-button.pay:hover {
+  background-color: #374151;
+}
+
+.woocommerce-orders-table .woocommerce-button.view {
+  background-color: #f3f4f6;
+  color: #374151 !important;
+}
+
+.woocommerce-orders-table .woocommerce-button.view:hover {
+  background-color: #e5e7eb;
+}
+
+.woocommerce-orders-table .woocommerce-button.cancel {
+  background-color: #fef2f2;
+  color: #dc2626 !important;
+}
+
+.woocommerce-orders-table .woocommerce-button.cancel:hover {
+  background-color: #fee2e2;
+}
+
+@media (max-width: 768px) {
+  .orders-header-container {
+    max-width: 100%;
+    padding: 80px 12px 0 12px;
+  }
+  .woocommerce-MyAccount-content {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+}
