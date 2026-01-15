@@ -25,9 +25,9 @@ const Dialog: React.FC<DialogProps> = ({ open, onOpenChange, children }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4"
           >
-            <div className="bg-white rounded-xl shadow-xl p-6">
+            <div className="bg-white rounded-xl shadow-xl" style={{ padding: '24px' }}>
               {children}
             </div>
           </motion.div>
