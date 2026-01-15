@@ -925,6 +925,16 @@ add_action('wp_body_open', function () {
             height: 28px;
             width: auto;
         }
+        .dealer-credit {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #059669;
+            background: rgba(5, 150, 105, 0.1);
+            border-radius: 8px;
+        }
         .dealer-logout {
             color: #dc2626 !important;
         }
@@ -1067,6 +1077,7 @@ add_action('wp_body_open', function () {
             <button class="dealer-nav-close" onclick="closeDealerMenu()">&times;</button>
             <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
             <a href="<?php echo wc_get_cart_url(); ?>">Cart</a>
+            <span class="dealer-credit">Credit: $<?php echo number_format(dealer_get_funds_balance(), 2); ?></span>
             <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
             <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
         </nav>
@@ -1271,4 +1282,33 @@ add_filter('woocommerce_checkout_show_terms', function($show) {
         return false;
     }
     return $show;
+});
+
+/**
+ * Get dealer's account funds balance
+ */
+function dealer_get_funds_balance() {
+    if (!is_user_logged_in()) return 0;
+    if (!class_exists("YITH_YWF_Customer")) return 0;
+    
+    $user_id = get_current_user_id();
+    $customer = new YITH_YWF_Customer($user_id);
+    return $customer->get_funds();
+}
+
+/**
+ * Only allow Account Funds payment for dealers
+ */
+add_filter("woocommerce_available_payment_gateways", function($gateways) {
+    if (!is_user_logged_in()) return $gateways;
+    
+    $user = wp_get_current_user();
+    if (in_array("dealer", (array) $user->roles)) {
+        foreach ($gateways as $key => $gateway) {
+            if ($key !== "yith-account-funds") {
+                unset($gateways[$key]);
+            }
+        }
+    }
+    return $gateways;
 });
