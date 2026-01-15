@@ -210,6 +210,55 @@ textarea:focus {
   background-color: #fee2e2;
 }
 
+/* Order status badges */
+.woocommerce-orders-table .woocommerce-orders-table__cell-order-status {
+  font-weight: 500;
+}
+
+.woocommerce-orders-table mark.order-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: none;
+}
+
+.woocommerce-orders-table mark.order-status.status-pending {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.woocommerce-orders-table mark.order-status.status-processing {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.woocommerce-orders-table mark.order-status.status-on-hold {
+  background-color: #ffedd5;
+  color: #ea580c;
+}
+
+.woocommerce-orders-table mark.order-status.status-completed {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.woocommerce-orders-table mark.order-status.status-cancelled {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.woocommerce-orders-table mark.order-status.status-refunded {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.woocommerce-orders-table mark.order-status.status-failed {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
 @media (max-width: 768px) {
   .dealer-orders-page {
     max-width: 100%;
