@@ -1637,6 +1637,66 @@ add_filter("woocommerce_available_payment_gateways", function($gateways) {
 });
 
 /**
+ * Debug: Log ALL order status changes to find auto-cancel source
+ */
+add_action('woocommerce_order_status_changed', function($order_id, $old_status, $new_status) {
+    if ($new_status === 'cancelled') {
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 15);
+        $trace_summary = [];
+        foreach ($backtrace as $i => $frame) {
+            $file = isset($frame['file']) ? basename($frame['file']) : 'unknown';
+            $line = isset($frame['line']) ? $frame['line'] : '?';
+            $func = isset($frame['function']) ? $frame['function'] : 'unknown';
+            $trace_summary[] = "#{$i} {$file}:{$line} {$func}()";
+        }
+
+        error_log("=== ORDER CANCELLED DEBUG ===");
+        error_log("Order ID: {$order_id}");
+        error_log("Old Status: {$old_status}");
+        error_log("New Status: {$new_status}");
+        error_log("Time: " . date('Y-m-d H:i:s'));
+        error_log("REQUEST_URI: " . ($_SERVER['REQUEST_URI'] ?? 'N/A'));
+        error_log("HTTP_REFERER: " . ($_SERVER['HTTP_REFERER'] ?? 'N/A'));
+        error_log("User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'N/A'));
+        error_log("Is CRON: " . (defined('DOING_CRON') && DOING_CRON ? 'YES' : 'NO'));
+        error_log("Is AJAX: " . (defined('DOING_AJAX') && DOING_AJAX ? 'YES' : 'NO'));
+        error_log("Is REST: " . (defined('REST_REQUEST') && REST_REQUEST ? 'YES' : 'NO'));
+        error_log("Backtrace:\n" . implode("\n", $trace_summary));
+        error_log("=== END DEBUG ===");
+    }
+}, 10, 3);
+
+/**
+ * Debug: Log WooCommerce scheduled cancel action
+ */
+add_action('woocommerce_cancel_unpaid_order', function($order) {
+    $order_id = is_object($order) ? $order->get_id() : $order;
+    error_log("=== WOOCOMMERCE AUTO-CANCEL TRIGGERED ===");
+    error_log("Order ID: {$order_id}");
+    error_log("Time: " . date('Y-m-d H:i:s'));
+    error_log("This is WooCommerce's scheduled unpaid order cancellation!");
+    error_log("=== END ===");
+}, 1);
+
+/**
+ * Prevent WooCommerce from auto-cancelling dealer orders
+ * WooCommerce has a setting to cancel unpaid orders after X minutes
+ */
+add_filter('woocommerce_cancel_unpaid_order', function($cancel, $order) {
+    if (!$order) return $cancel;
+
+    $customer_id = $order->get_customer_id();
+    if ($customer_id) {
+        $user = get_user_by('id', $customer_id);
+        if ($user && in_array('dealer', (array) $user->roles)) {
+            error_log("BLOCKED auto-cancel for dealer order #{$order->get_id()}");
+            return false; // Don't cancel dealer orders automatically
+        }
+    }
+    return $cancel;
+}, 10, 2);
+
+/**
  * Require confirmation before cancelling order for dealers
  * This prevents accidental cancellation from browser prefetch or misclicks
  */
