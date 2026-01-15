@@ -1118,7 +1118,24 @@ add_action('wp_head', function () {
             width: 100% !important;
             box-sizing: border-box !important;
         }
+        /* Cancel button confirmation */
+        .woocommerce-button.cancel {
+            cursor: pointer;
+        }
     </style>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var cancelLinks = document.querySelectorAll("a.cancel, a.woocommerce-button.cancel");
+        cancelLinks.forEach(function(link) {
+            link.addEventListener("click", function(e) {
+                if (!confirm("Are you sure you want to cancel this order?")) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    });
+    </script>
     <?php
 });
 
@@ -1620,6 +1637,36 @@ add_filter("woocommerce_available_payment_gateways", function($gateways) {
 });
 
 /**
+ * Require confirmation before cancelling order for dealers
+ * This prevents accidental cancellation from browser prefetch or misclicks
+ */
+add_action('wp_loaded', function() {
+    if (isset($_GET['cancel_order']) && $_GET['cancel_order'] === 'true') {
+        $user = wp_get_current_user();
+        if (in_array('dealer', (array) $user->roles)) {
+            if (!isset($_GET['confirmed'])) {
+                $order_id = intval($_GET['order_id'] ?? 0);
+                $confirm_url = esc_url(add_query_arg('confirmed', '1'));
+                $back_url = esc_url(wc_get_account_endpoint_url('orders'));
+                ?>
+                <!DOCTYPE html>
+                <html>
+                <head><title>Confirm Cancel Order</title></head>
+                <body style="text-align:center;padding:100px;font-family:system-ui,sans-serif;">
+                    <h2 style="margin-bottom:20px;">Cancel Order #<?php echo $order_id; ?>?</h2>
+                    <p style="color:#666;margin-bottom:30px;">Are you sure you want to cancel this order?</p>
+                    <a href="<?php echo $confirm_url; ?>" style="background:#dc2626;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;margin:10px;display:inline-block;">Yes, Cancel Order</a>
+                    <a href="<?php echo $back_url; ?>" style="background:#e5e7eb;color:#374151;padding:12px 24px;border-radius:8px;text-decoration:none;margin:10px;display:inline-block;">No, Go Back</a>
+                </body>
+                </html>
+                <?php
+                exit;
+            }
+        }
+    }
+}, 5);
+
+/**
  * Redirect to orders page after cancelling order (instead of my-account)
  */
 add_filter('woocommerce_get_cancel_order_url_raw', function($url, $order) {
@@ -1639,7 +1686,9 @@ add_filter('woocommerce_get_cancel_order_url_raw', function($url, $order) {
 
 /**
  * After order cancelled, redirect dealers to view-order page
+ * DISABLED for debugging - orders were being auto-cancelled
  */
+/*
 add_action('woocommerce_cancelled_order', function($order_id) {
     $user = wp_get_current_user();
     if (in_array('dealer', (array) $user->roles)) {
@@ -1647,6 +1696,7 @@ add_action('woocommerce_cancelled_order', function($order_id) {
         exit;
     }
 });
+*/
 
 
 /**
