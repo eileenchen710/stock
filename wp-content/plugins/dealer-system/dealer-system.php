@@ -792,6 +792,7 @@ add_action('wp_head', function () {
             width: 100% !important;
             max-width: 100vw !important;
             display: flex;
+            flex-wrap: nowrap;
             flex-direction: column;
             align-items: center;
             box-sizing: border-box;
@@ -807,6 +808,7 @@ add_action('wp_head', function () {
             margin: 0 auto !important;
             padding-top: 120px !important;
             display: flex;
+            flex-wrap: nowrap;
             flex-direction: column;
             align-items: center;
             box-sizing: border-box;
@@ -832,6 +834,7 @@ add_action('wp_head', function () {
             margin: 0 auto !important;
             padding-top: 120px !important;
             display: flex;
+            flex-wrap: nowrap;
             flex-direction: column;
             align-items: center;
             box-sizing: border-box;
@@ -879,15 +882,16 @@ add_action('wp_body_open', function () {
             color: #111827;
             padding: 10px 24px;
             display: flex;
+            flex-wrap: nowrap;
             justify-content: space-between;
             align-items: center;
             position: fixed;
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 50vw;
-            min-width: 600px;
-            max-width: 900px;
+            width: auto;
+            
+            white-space: nowrap;
             border-radius: 9999px;
             z-index: 9999;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -911,10 +915,12 @@ add_action('wp_body_open', function () {
         }
         .dealer-nav {
             display: flex;
+            flex-wrap: nowrap;
             gap: 4px;
         }
         .dealer-logo a {
             display: flex;
+            flex-wrap: nowrap;
             align-items: center;
             padding: 0;
         }
@@ -927,6 +933,7 @@ add_action('wp_body_open', function () {
         }
         .dealer-credit {
             display: flex;
+            flex-wrap: nowrap;
             align-items: center;
             padding: 8px 16px;
             font-size: 14px;
@@ -998,6 +1005,7 @@ add_action('wp_body_open', function () {
             }
             .dealer-menu-toggle {
                 display: flex;
+            flex-wrap: nowrap;
             }
             .dealer-nav {
                 position: fixed;
@@ -1022,6 +1030,12 @@ add_action('wp_body_open', function () {
                 padding: 14px 16px;
                 font-size: 16px;
                 border-radius: 12px;
+            .dealer-credit {
+                padding: 14px 16px;
+                font-size: 16px;
+                border-radius: 12px;
+                justify-content: center;
+            }
             }
             .dealer-nav-close {
                 position: absolute;
@@ -1030,6 +1044,7 @@ add_action('wp_body_open', function () {
                 width: 40px;
                 height: 40px;
                 display: flex;
+            flex-wrap: nowrap;
                 align-items: center;
                 justify-content: center;
                 background: #f3f4f6;
@@ -1077,8 +1092,8 @@ add_action('wp_body_open', function () {
             <button class="dealer-nav-close" onclick="closeDealerMenu()">&times;</button>
             <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
             <a href="<?php echo wc_get_cart_url(); ?>">Cart</a>
-            <span class="dealer-credit">Credit: $<?php echo number_format(dealer_get_funds_balance(), 2); ?></span>
             <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
+            <span class="dealer-credit">Balance: $<?php echo number_format(dealer_get_funds_balance(), 2); ?></span>
             <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
         </nav>
     </div>
