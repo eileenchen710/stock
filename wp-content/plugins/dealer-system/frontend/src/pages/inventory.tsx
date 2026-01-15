@@ -1,4 +1,4 @@
-import { StrictMode, useState, useEffect, useCallback, useRef } from 'react'
+import { StrictMode, useState, useEffect, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import GradientText from '@/components/ui/GradientText'
@@ -71,9 +71,23 @@ function InventoryPage() {
     reason: 'out_of_stock'
   })
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const searchRequestIdRef = useRef(0)
 
   // Fetch products from server
-  const fetchProducts = useCallback(async (searchTerm: string, pageNum: number, append: boolean = false) => {
+  const fetchProducts = async (searchTerm: string, pageNum: number, append: boolean = false) => {
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+
+    // Create new abort controller
+    const abortController = new AbortController()
+    abortControllerRef.current = abortController
+
+    // Track this request
+    const requestId = ++searchRequestIdRef.current
+
     if (pageNum === 1 && !append) {
       setLoading(true)
     } else {
@@ -90,9 +104,15 @@ function InventoryPage() {
       const response = await fetch(config.ajaxUrl, {
         method: 'POST',
         body: formData,
+        signal: abortController.signal,
       })
 
       const result = await response.json()
+
+      // Only update if this is still the latest request
+      if (requestId !== searchRequestIdRef.current) {
+        return
+      }
 
       if (result.success) {
         if (append) {
@@ -105,18 +125,26 @@ function InventoryPage() {
         setPage(result.data.page)
       }
     } catch (error) {
+      // Ignore abort errors
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
       console.error('Failed to fetch products:', error)
     } finally {
-      setLoading(false)
-      setLoadingMore(false)
-      setIsSearching(false)
+      // Only update loading state if this is still the latest request
+      if (requestId === searchRequestIdRef.current) {
+        setLoading(false)
+        setLoadingMore(false)
+        setIsSearching(false)
+      }
     }
-  }, [config.ajaxUrl, config.searchNonce])
+  }
 
-  // Initial load
+  // Initial load - only run once
   useEffect(() => {
     fetchProducts('', 1)
-  }, [fetchProducts])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Handle search with debounce
   const handleSearchChange = (value: string) => {
@@ -128,10 +156,10 @@ function InventoryPage() {
       clearTimeout(searchTimeoutRef.current)
     }
 
-    // Debounce search
+    // Debounce search - 500ms for better UX
     searchTimeoutRef.current = setTimeout(() => {
       fetchProducts(value, 1)
-    }, 300)
+    }, 500)
   }
 
   // Load more products
