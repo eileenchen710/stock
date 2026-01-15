@@ -4,7 +4,7 @@ const Alert = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { variant?: 'default' | 'destructive' }
 >(({ className = '', variant = 'default', ...props }, ref) => {
-  const baseStyles = "relative w-full rounded-lg border px-4 py-3 text-sm flex items-start gap-3"
+  const baseStyles = "relative w-full rounded-xl border p-4 text-sm flex items-start gap-3 shadow-lg"
   const variantStyles = variant === 'destructive'
     ? "border-red-200 bg-red-50 text-red-900"
     : "border-green-200 bg-green-50 text-green-900"

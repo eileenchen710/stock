@@ -194,10 +194,10 @@ function InventoryPage() {
         <AnimatePresence>
           {alert?.show && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="fixed top-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="fixed bottom-6 right-6 z-50 w-full max-w-sm"
             >
               <Alert variant={alert.error ? 'destructive' : 'default'}>
                 {alert.error ? (

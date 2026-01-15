@@ -135,11 +135,11 @@ function CheckoutPage() {
           >
             <div className="bg-white overflow-hidden p-8">
               <h2 className="text-xl font-semibold mb-6">Order Items</h2>
-              <div className="space-y-6">
+              <div>
                 {items.map((item, index) => (
                   <motion.div
                     key={item.key}
-                    className="flex items-center justify-between pb-6 border-b border-gray-100 last:border-0 last:pb-0"
+                    className="flex items-center justify-between py-5 border-b border-gray-100 last:border-0"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
@@ -195,19 +195,20 @@ function CheckoutPage() {
                   <span>Shipping</span>
                   <span>Calculated later</span>
                 </div>
-                <div className="border-t border-gray-200 mt-4 pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">Total</span>
-                    <span className="text-2xl font-bold">
-                      <GradientText animationSpeed={4}>
-                        ${total.toFixed(2)}
-                      </GradientText>
-                    </span>
-                  </div>
+              </div>
+
+              <div className="border-t border-gray-200 mt-6 pt-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-lg font-semibold">Total</span>
+                  <span className="text-2xl font-bold">
+                    <GradientText animationSpeed={4}>
+                      ${total.toFixed(2)}
+                    </GradientText>
+                  </span>
                 </div>
               </div>
 
-              <div className="mt-8 space-y-4">
+              <div className="mt-8 space-y-3">
                 <Button
                   className="w-full h-12 text-base"
                   onClick={handlePlaceOrder}
