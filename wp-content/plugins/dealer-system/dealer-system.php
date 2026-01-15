@@ -888,7 +888,8 @@ add_action('wp_body_open', function () {
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: auto;
+            width: max-content;
+            gap: 24px;
             
             white-space: nowrap;
             border-radius: 9999px;
@@ -931,7 +932,8 @@ add_action('wp_body_open', function () {
         }
         .dealer-logo img {
             height: 28px;
-            width: auto;
+            width: max-content;
+            gap: 24px;
         }
         .dealer-credit {
             display: flex;
@@ -1187,7 +1189,8 @@ add_shortcode('dealer_home', function () {
             left: 50%;
             min-width: 100%;
             min-height: 100%;
-            width: auto;
+            width: max-content;
+            gap: 24px;
             height: auto;
             transform: translate(-50%, -50%);
             object-fit: cover;
