@@ -847,18 +847,24 @@ add_action('wp_head', function () {
 
         /* Order Pay page styles */
         body.woocommerce-order-pay .woocommerce {
-            width: 100%;
-            max-width: 80vw;
-            margin: 0 auto;
-            padding: 120px 16px 80px 16px;
-            box-sizing: border-box;
+            width: 100% !important;
+            max-width: 80vw !important;
+            margin: 0 auto !important;
+            padding: 100px 16px 80px 16px !important;
+            box-sizing: border-box !important;
         }
 
         body.woocommerce-order-pay .woocommerce h2 {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 32px;
+            text-align: center !important;
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 32px !important;
+            background: linear-gradient(135deg, #111827, #6b7280, #9ca3af, #374151, #6b7280, #111827) !important;
+            background-size: 200% 200% !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            animation: gradientShift 4s ease-in-out infinite !important;
         }
 
         body.woocommerce-order-pay .woocommerce table {
@@ -1015,22 +1021,27 @@ add_action('wp_head', function () {
 
         /* Order Received (Thank You) page styles */
         body.woocommerce-order-received .woocommerce {
-            width: 100%;
-            max-width: 80vw;
-            margin: 0 auto;
-            padding: 120px 16px 80px 16px;
-            box-sizing: border-box;
+            width: 100% !important;
+            max-width: 80vw !important;
+            margin: 0 auto !important;
+            padding: 100px 16px 80px 16px !important;
+            box-sizing: border-box !important;
         }
 
         body.woocommerce-order-received .woocommerce .woocommerce-order {
-            text-align: center;
+            text-align: center !important;
         }
 
         body.woocommerce-order-received .woocommerce .woocommerce-thankyou-order-received {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 32px;
-            color: #111827;
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 32px !important;
+            background: linear-gradient(135deg, #111827, #6b7280, #9ca3af, #374151, #6b7280, #111827) !important;
+            background-size: 200% 200% !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            animation: gradientShift 4s ease-in-out infinite !important;
         }
 
         body.woocommerce-order-received .woocommerce .woocommerce-order-overview {
