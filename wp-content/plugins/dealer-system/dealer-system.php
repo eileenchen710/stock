@@ -1016,6 +1016,17 @@ add_action('wp_body_open', function () {
                 font-size: 20px;
                 color: #374151;
             }
+            /* Mobile container widths */
+            #dealer-inventory-root,
+            #dealer-cart-root,
+            #dealer-orders-root,
+            #dealer-checkout-root {
+                width: calc(100% - 24px) !important;
+                max-width: 100% !important;
+                padding-top: 80px !important;
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }
         }
         @media (min-width: 769px) {
             .dealer-nav-close {
@@ -1188,10 +1199,20 @@ add_shortcode('dealer_home', function () {
             transform: scale(1.05);
         }
         @media (max-width: 768px) {
+            .dealer-home-content {
+                width: 100%;
+                padding: 0 16px;
+                box-sizing: border-box;
+            }
             .dealer-home-title {
-                font-size: 2rem;
+                font-size: 1.75rem;
+                line-height: 1.3;
             }
             .dealer-home-description {
+                font-size: 0.95rem;
+            }
+            .dealer-home-btn {
+                padding: 0.75rem 2rem;
                 font-size: 1rem;
             }
         }
