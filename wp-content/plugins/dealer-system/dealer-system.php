@@ -430,7 +430,6 @@ function dealer_get_cart_data() {
 
     return [
         'items' => $items,
-                'viewOrderUrl' => wc_get_account_endpoint_url('view-order') . $order->get_id() . '/?embed=1',
         'total' => $cart ? (float) $cart->get_total('edit') : 0,
         'checkoutUrl' => wc_get_checkout_url(),
         'updateCartUrl' => wc_get_cart_url(),
@@ -520,7 +519,6 @@ function dealer_get_checkout_data() {
 
     return [
         'items' => $items,
-                'viewOrderUrl' => wc_get_account_endpoint_url('view-order') . $order->get_id() . '/?embed=1',
         'total' => $cart ? (float) $cart->get_total('edit') : 0,
         'cartUrl' => wc_get_cart_url(),
         'nonce' => wp_create_nonce('wc_store_api'),
