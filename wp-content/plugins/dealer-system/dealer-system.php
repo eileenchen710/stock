@@ -882,7 +882,6 @@ add_action('wp_body_open', function () {
             color: #111827;
             padding: 10px 24px;
             display: flex;
-            flex-wrap: nowrap;
             justify-content: space-between;
             align-items: center;
             position: fixed;
@@ -917,6 +916,9 @@ add_action('wp_body_open', function () {
             display: flex;
             flex-wrap: nowrap;
             gap: 4px;
+        }
+        .dealer-logo {
+            flex-shrink: 0;
         }
         .dealer-logo a {
             display: flex;
