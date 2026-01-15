@@ -838,11 +838,11 @@ add_action('wp_head', function () {
         body:not(.woocommerce-order-pay) .woocommerce-checkout .woocommerce-form-coupon,
         body:not(.woocommerce-order-pay) .woocommerce-checkout #customer_details,
         body:not(.woocommerce-order-pay) .woocommerce-checkout #order_review,
+        body:not(.woocommerce-order-pay) .woocommerce-checkout #order_review_heading,
         body:not(.woocommerce-order-pay) .woocommerce-checkout .woocommerce-checkout-review-order,
         body:not(.woocommerce-order-pay) .woocommerce-checkout .woocommerce-NoticeGroup,
         body:not(.woocommerce-order-pay) .woocommerce-checkout .checkout.woocommerce-checkout {
             display: none !important;
-        }
         }
 
         /* Order Pay page styles */
