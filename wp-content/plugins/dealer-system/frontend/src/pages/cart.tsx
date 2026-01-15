@@ -194,8 +194,8 @@ function CartPage() {
                 {updating === 'all' ? 'Updating...' : 'Update Cart'}
               </Button>
 
-              <div className="rounded-xl p-6 min-w-[300px]">
-                <div className="flex justify-between items-center mb-4">
+              <div className="rounded-xl p-6 min-w-[300px] space-y-6">
+                <div className="flex justify-between items-center">
                   <span className="text-gray-500">Total</span>
                   <span className="text-3xl font-bold">
                     <GradientText animationSpeed={4}>
