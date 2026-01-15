@@ -5,6 +5,7 @@ import GradientText from '@/components/ui/GradientText'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert'
 import '@/index.css'
 
 interface Product {
@@ -61,6 +62,7 @@ function InventoryPage() {
   const [hasMore, setHasMore] = useState(false)
   const [total, setTotal] = useState(0)
   const [isSearching, setIsSearching] = useState(false)
+  const [alert, setAlert] = useState<{ show: boolean; product: string; quantity: number; error?: boolean; message?: string } | null>(null)
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Fetch products from server
@@ -167,15 +169,19 @@ function InventoryPage() {
       const result = await response.json()
 
       if (result.success) {
-        // Reload to update cart count
-        window.location.reload()
+        // Show success alert
+        setAlert({ show: true, product: product.name, quantity })
+        // Auto hide after 3 seconds
+        setTimeout(() => setAlert(null), 3000)
       } else {
         console.error('Failed to add to cart:', result.data?.message)
-        alert('Failed to add to cart: ' + (result.data?.message || 'Unknown error'))
+        setAlert({ show: true, product: product.name, quantity, error: true, message: result.data?.message || 'Unknown error' })
+        setTimeout(() => setAlert(null), 4000)
       }
     } catch (error) {
       console.error('Failed to add to cart:', error)
-      alert('Failed to add to cart')
+      setAlert({ show: true, product: product.name, quantity, error: true, message: 'Network error' })
+      setTimeout(() => setAlert(null), 4000)
     } finally {
       setAddingToCart(null)
     }
@@ -184,6 +190,36 @@ function InventoryPage() {
   return (
     <div className="page-container">
       <div className="page-content">
+        {/* Alert */}
+        <AnimatePresence>
+          {alert?.show && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed top-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4"
+            >
+              <Alert variant={alert.error ? 'destructive' : 'default'}>
+                {alert.error ? (
+                  <svg className="h-4 w-4 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="h-4 w-4 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                <div>
+                  <AlertTitle>{alert.error ? 'Error' : 'Added to Cart'}</AlertTitle>
+                  <AlertDescription>
+                    {alert.error ? alert.message : `${alert.quantity}x ${alert.product}`}
+                  </AlertDescription>
+                </div>
+              </Alert>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <motion.div
           className="mb-8 text-center"
