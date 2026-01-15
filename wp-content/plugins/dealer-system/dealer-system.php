@@ -919,37 +919,44 @@ add_action('wp_head', function () {
 
         /* Dealer page title */
         .dealer-view-order-header {
-            text-align: center;
-            margin-bottom: 32px;
+            text-align: center !important;
+            margin-bottom: 32px !important;
+            padding-top: 0 !important;
         }
 
         .dealer-page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #111827;
-            margin: 0;
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+            color: #111827 !important;
+            margin: 0 !important;
+            background: linear-gradient(135deg, #111827, #6b7280, #9ca3af, #374151, #6b7280, #111827) !important;
+            background-size: 200% 200% !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            animation: gradientShift 4s ease-in-out infinite !important;
         }
 
         /* View Order page styles */
         body.woocommerce-view-order .woocommerce {
-            width: 100%;
-            max-width: 80vw;
-            margin: 0 auto;
-            padding: 100px 16px 80px 16px;
-            box-sizing: border-box;
+            width: 100% !important;
+            max-width: 80vw !important;
+            margin: 0 auto !important;
+            padding: 100px 16px 80px 16px !important;
+            box-sizing: border-box !important;
         }
 
         body.woocommerce-view-order .woocommerce > p:first-child {
-            text-align: center;
-            font-size: 1.1rem;
-            color: #6b7280;
-            margin-bottom: 32px;
+            text-align: center !important;
+            font-size: 1.1rem !important;
+            color: #6b7280 !important;
+            margin-bottom: 32px !important;
         }
 
         body.woocommerce-view-order .woocommerce h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 32px 0 16px 0;
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            margin: 32px 0 16px 0 !important;
         }
 
         body.woocommerce-view-order .woocommerce table {
