@@ -1259,8 +1259,8 @@ add_action('wp_body_open', function () {
         }
         .dealer-logo img {
             height: 28px;
-            width: max-content;
-            gap: 24px;
+            width: auto;
+            max-width: 120px;
         }
         .dealer-credit {
             display: flex;
@@ -1361,12 +1361,12 @@ add_action('wp_body_open', function () {
                 padding: 14px 16px;
                 font-size: 16px;
                 border-radius: 12px;
+            }
             .dealer-credit {
                 padding: 14px 16px;
                 font-size: 16px;
                 border-radius: 12px;
                 justify-content: center;
-            }
             }
             .dealer-nav-close {
                 position: absolute;
