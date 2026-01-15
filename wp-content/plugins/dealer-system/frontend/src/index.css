@@ -131,6 +131,37 @@ textarea:focus {
   box-sizing: border-box;
 }
 
+/* Adjust for WordPress admin bar */
+.admin-bar .dealer-orders-page {
+  padding-top: 132px; /* 100px + 32px admin bar */
+}
+
+@media (max-width: 782px) {
+  .admin-bar .dealer-orders-page {
+    padding-top: 146px; /* 100px + 46px mobile admin bar */
+  }
+}
+
+/* WooCommerce notice styling (empty orders state) */
+.dealer-orders-page .woocommerce-info,
+.dealer-orders-page .woocommerce-message,
+.dealer-orders-page .woocommerce-notice {
+  padding: 16px 24px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.dealer-orders-page .woocommerce-info a,
+.dealer-orders-page .woocommerce-message a,
+.dealer-orders-page .woocommerce-notice a {
+  color: #111827;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
 /* Orders page header */
 #dealer-orders-header {
   width: 100%;

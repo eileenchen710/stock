@@ -1452,7 +1452,9 @@ add_action('woocommerce_account_view-order_endpoint', function ($order_id) {
 // Add dealer orders page wrapper with header and table container
 add_action('woocommerce_account_orders_endpoint', function () {
     $user = wp_get_current_user();
-    if (in_array('dealer', (array) $user->roles)) {
+    $roles = (array) $user->roles;
+    // Apply for dealer and admin users
+    if (in_array('dealer', $roles) || in_array('administrator', $roles)) {
         echo '<div class="dealer-orders-page">';
         echo '<div id="dealer-orders-header"></div>';
         echo '<div class="dealer-orders-table-wrapper">';
@@ -1462,7 +1464,9 @@ add_action('woocommerce_account_orders_endpoint', function () {
 // Close the dealer orders containers after WooCommerce content
 add_action('woocommerce_account_orders_endpoint', function () {
     $user = wp_get_current_user();
-    if (in_array('dealer', (array) $user->roles)) {
+    $roles = (array) $user->roles;
+    // Apply for dealer and admin users
+    if (in_array('dealer', $roles) || in_array('administrator', $roles)) {
         echo '</div>'; // close table-wrapper
         echo '</div>'; // close dealer-orders-page
     }
