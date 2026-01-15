@@ -936,7 +936,7 @@ add_action('wp_body_open', function () {
             .dealer-nav {
                 position: fixed;
                 top: 0;
-                right: -280px;
+                right: -300px;
                 width: 280px;
                 height: 100vh;
                 background: white;
@@ -946,9 +946,11 @@ add_action('wp_body_open', function () {
                 box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
                 transition: right 0.3s ease;
                 z-index: 10000;
+                visibility: hidden;
             }
             .dealer-nav.active {
                 right: 0;
+                visibility: visible;
             }
             .dealer-nav a {
                 padding: 14px 16px;
@@ -977,8 +979,9 @@ add_action('wp_body_open', function () {
                 display: none;
             }
         }
-        body {
+        html, body {
             padding-top: 0 !important;
+            overflow-x: hidden;
         }
     </style>
     <div class="dealer-nav-overlay" onclick="closeDealerMenu()"></div>

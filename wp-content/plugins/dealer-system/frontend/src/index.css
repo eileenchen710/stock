@@ -36,6 +36,7 @@ body {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-size: 14px;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Animated gradient text - gray/white */
@@ -111,4 +112,13 @@ textarea:focus {
   padding-left: 16px;
   padding-right: 16px;
   box-sizing: border-box;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .page-content {
+    max-width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 }
