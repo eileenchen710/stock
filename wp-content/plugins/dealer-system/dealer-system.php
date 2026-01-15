@@ -917,6 +917,95 @@ add_action('wp_head', function () {
             background: #374151;
         }
 
+        /* Dealer page title */
+        .dealer-view-order-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .dealer-page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
+
+        /* View Order page styles */
+        body.woocommerce-view-order .woocommerce {
+            width: 100%;
+            max-width: 80vw;
+            margin: 0 auto;
+            padding: 100px 16px 80px 16px;
+            box-sizing: border-box;
+        }
+
+        body.woocommerce-view-order .woocommerce > p:first-child {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 32px;
+        }
+
+        body.woocommerce-view-order .woocommerce h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+        }
+
+        body.woocommerce-view-order .woocommerce table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        body.woocommerce-view-order .woocommerce table th,
+        body.woocommerce-view-order .woocommerce table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.woocommerce-view-order .woocommerce table thead {
+            background-color: #f9fafb;
+        }
+
+        body.woocommerce-view-order .woocommerce .woocommerce-order-details {
+            margin-bottom: 32px;
+        }
+
+        body.woocommerce-view-order .woocommerce .woocommerce-customer-details {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        body.woocommerce-view-order .woocommerce .woocommerce-customer-details address {
+            font-style: normal;
+            line-height: 1.8;
+        }
+
+        body.woocommerce-view-order .woocommerce .woocommerce-button {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-right: 8px;
+            margin-top: 16px;
+            transition: all 0.2s;
+        }
+
+        body.woocommerce-view-order .woocommerce .woocommerce-button.pay {
+            background-color: #111827;
+            color: white !important;
+        }
+
+        body.woocommerce-view-order .woocommerce .woocommerce-button.cancel {
+            background-color: #fef2f2;
+            color: #dc2626 !important;
+        }
+
         /* Order Received (Thank You) page styles */
         body.woocommerce-order-received .woocommerce {
             width: 100%;
@@ -1315,6 +1404,16 @@ add_filter('woocommerce_locate_template', function ($template, $template_name) {
 /**
  * Replace WooCommerce orders with React orders for dealers
  */
+// Add title to view-order page
+add_action('woocommerce_account_view-order_endpoint', function ($order_id) {
+    $user = wp_get_current_user();
+    if (in_array('dealer', (array) $user->roles)) {
+        echo '<div class="dealer-view-order-header">';
+        echo '<h1 class="dealer-page-title">Order #' . esc_html($order_id) . '</h1>';
+        echo '</div>';
+    }
+}, 1);
+
 // Add dealer orders page wrapper with header and table container
 add_action('woocommerce_account_orders_endpoint', function () {
     $user = wp_get_current_user();
