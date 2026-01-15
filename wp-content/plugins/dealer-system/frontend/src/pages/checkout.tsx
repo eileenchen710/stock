@@ -133,7 +133,7 @@ function CheckoutPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <div className="bg-white rounded-3xl overflow-hidden p-8">
+            <div className="bg-white overflow-hidden p-8">
               <h2 className="text-xl font-semibold mb-6">Order Items</h2>
               <div className="space-y-6">
                 {items.map((item, index) => (
@@ -162,7 +162,7 @@ function CheckoutPage() {
 
             {/* Order Notes */}
             <motion.div
-              className="mt-6 bg-white rounded-3xl overflow-hidden p-6"
+              className="mt-6 bg-white overflow-hidden p-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -183,10 +183,10 @@ function CheckoutPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="rounded-3xl p-6 sticky top-32">
+            <div className="p-6 sticky top-32">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
 
-              <div className="space-y-3 mb-8">
+              <div className="space-y-3">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({items.length} items)</span>
                   <span>${total.toFixed(2)}</span>
@@ -207,20 +207,22 @@ function CheckoutPage() {
                 </div>
               </div>
 
-              <Button
-                className="w-full h-12 text-base"
-                onClick={handlePlaceOrder}
-                disabled={placing}
-              >
-                {placing ? 'Placing Order...' : 'Place Order'}
-              </Button>
+              <div className="mt-8 space-y-4">
+                <Button
+                  className="w-full h-12 text-base"
+                  onClick={handlePlaceOrder}
+                  disabled={placing}
+                >
+                  {placing ? 'Placing Order...' : 'Place Order'}
+                </Button>
 
-              <Button
-                className="w-full h-12 text-base mt-4"
-                onClick={() => window.location.href = config.cartUrl}
-              >
-                Back to Cart
-              </Button>
+                <Button
+                  className="w-full h-12 text-base"
+                  onClick={() => window.location.href = config.cartUrl}
+                >
+                  Back to Cart
+                </Button>
+              </div>
             </div>
           </motion.div>
         </div>

@@ -84,7 +84,7 @@ function OrdersPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-gray-50 rounded-2xl overflow-hidden"
+                className="bg-gray-50 overflow-hidden"
               >
                 {/* Order Header */}
                 <div
