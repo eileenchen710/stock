@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert'
+import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/Dialog'
 import '@/index.css'
 
 interface Product {
@@ -63,6 +64,12 @@ function InventoryPage() {
   const [total, setTotal] = useState(0)
   const [isSearching, setIsSearching] = useState(false)
   const [alert, setAlert] = useState<{ show: boolean; product: string; quantity: number; error?: boolean; message?: string } | null>(null)
+  const [backorderDialog, setBackorderDialog] = useState<{ open: boolean; product: Product | null; quantity: number; reason: 'out_of_stock' | 'exceeds_stock' }>({
+    open: false,
+    product: null,
+    quantity: 0,
+    reason: 'out_of_stock'
+  })
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Fetch products from server
@@ -148,8 +155,8 @@ function InventoryPage() {
     setOrderTypes(prev => ({ ...prev, [productId]: value }))
   }
 
-  const handleAddToCart = async (product: Product) => {
-    const quantity = quantities[product.id] || 1
+  // Actually add to cart (called directly or after backorder confirmation)
+  const addToCartRequest = async (product: Product, quantity: number) => {
     const orderType = orderTypes[product.id] || 'stock_order'
     setAddingToCart(product.id)
 
@@ -187,6 +194,44 @@ function InventoryPage() {
     }
   }
 
+  // Handle add to cart button click - check stock first
+  const handleAddToCart = (product: Product) => {
+    const quantity = quantities[product.id] || 1
+
+    // Check if out of stock
+    if (product.stock <= 0) {
+      setBackorderDialog({
+        open: true,
+        product,
+        quantity,
+        reason: 'out_of_stock'
+      })
+      return
+    }
+
+    // Check if quantity exceeds stock
+    if (quantity > product.stock) {
+      setBackorderDialog({
+        open: true,
+        product,
+        quantity,
+        reason: 'exceeds_stock'
+      })
+      return
+    }
+
+    // Stock is sufficient, add directly
+    addToCartRequest(product, quantity)
+  }
+
+  // Confirm backorder
+  const handleConfirmBackorder = () => {
+    if (backorderDialog.product) {
+      addToCartRequest(backorderDialog.product, backorderDialog.quantity)
+    }
+    setBackorderDialog({ open: false, product: null, quantity: 0, reason: 'out_of_stock' })
+  }
+
   return (
     <div className="page-container">
       <div className="page-content">
@@ -219,6 +264,43 @@ function InventoryPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Backorder Confirmation Dialog */}
+        <Dialog
+          open={backorderDialog.open}
+          onOpenChange={(open) => setBackorderDialog(prev => ({ ...prev, open }))}
+        >
+          <DialogHeader>
+            <DialogTitle>Confirm Backorder</DialogTitle>
+            <DialogDescription>
+              {backorderDialog.reason === 'out_of_stock' ? (
+                <>
+                  <strong>{backorderDialog.product?.name}</strong> is currently out of stock.
+                  <br />
+                  This will be placed as a <strong>backorder</strong> and fulfilled when stock becomes available.
+                </>
+              ) : (
+                <>
+                  You are ordering <strong>{backorderDialog.quantity}</strong> units of <strong>{backorderDialog.product?.name}</strong>,
+                  but only <strong>{backorderDialog.product?.stock}</strong> units are in stock.
+                  <br />
+                  The remaining <strong>{backorderDialog.quantity - (backorderDialog.product?.stock || 0)}</strong> units will be placed as a <strong>backorder</strong>.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={() => setBackorderDialog({ open: false, product: null, quantity: 0, reason: 'out_of_stock' })}
+              style={{ background: '#f3f4f6', color: '#374151' }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmBackorder}>
+              Confirm Backorder
+            </Button>
+          </DialogFooter>
+        </Dialog>
 
         {/* Header */}
         <motion.div
