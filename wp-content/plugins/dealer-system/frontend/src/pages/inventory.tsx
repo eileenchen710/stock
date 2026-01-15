@@ -329,7 +329,6 @@ function InventoryPage() {
             >
               {hasMore && !search && (
                 <Button
-                  variant="outline"
                   onClick={handleLoadMore}
                   disabled={loadingMore}
                   className="mb-4"
