@@ -805,7 +805,20 @@ add_action('wp_head', function () {
             overflow-x: hidden !important;
         }
 
-        #dealer-inventory-root,
+        #dealer-inventory-root {
+            min-height: 100vh;
+            width: 80vw !important;
+            max-width: 80vw !important;
+            margin: 0 auto !important;
+            padding-top: 80px !important;
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            overflow-x: hidden !important;
+        }
+
         #dealer-cart-root {
             min-height: 100vh;
             width: 80vw !important;

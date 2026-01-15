@@ -249,14 +249,14 @@ function CartPage() {
         ) : (
           /* Empty Cart */
           <motion.div
-            className="text-center py-16"
+            className="text-center py-12"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <div className="text-6xl mb-4">🛒</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
-            <p className="text-gray-500 mb-6">Add some products to get started</p>
-            <Button onClick={() => window.location.href = '/'}>
+            <div className="text-4xl mb-3">🛒</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
+            <p className="text-gray-500 text-sm mb-4">Add some products to get started</p>
+            <Button onClick={() => window.location.href = '/inventory/'}>
               Browse Inventory
             </Button>
           </motion.div>
