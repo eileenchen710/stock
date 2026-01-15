@@ -27,6 +27,8 @@ declare global {
       checkoutUrl: string
       updateCartUrl: string
       nonce: string
+      ajaxUrl: string
+      cartActionNonce: string
     }
   }
 }
@@ -37,7 +39,9 @@ function CartPage() {
     total: 0,
     checkoutUrl: '/checkout/',
     updateCartUrl: '',
-    nonce: ''
+    nonce: '',
+    ajaxUrl: '',
+    cartActionNonce: ''
   }
 
   const [items, setItems] = useState(config.items)
@@ -46,9 +50,10 @@ function CartPage() {
 
   const total = items.reduce((sum, item) => sum + item.subtotal, 0)
 
-  const handleQuantityChange = (key: string, newQuantity: number) => {
+  const handleQuantityChange = async (key: string, newQuantity: number) => {
     if (newQuantity < 1) return
 
+    // Update local state immediately
     setItems(prev =>
       prev.map(item =>
         item.key === key
@@ -56,12 +61,20 @@ function CartPage() {
           : item
       )
     )
-  }
 
-  const handleUpdateCart = async () => {
-    setUpdating('all')
+    // Update server
+    setUpdating(key)
     try {
-      window.location.reload()
+      const formData = new FormData()
+      formData.append('action', 'dealer_update_cart_item')
+      formData.append('nonce', config.cartActionNonce)
+      formData.append('cart_item_key', key)
+      formData.append('quantity', String(newQuantity))
+
+      await fetch(config.ajaxUrl, {
+        method: 'POST',
+        body: formData,
+      })
     } catch (error) {
       console.error('Failed to update cart:', error)
     } finally {
@@ -69,10 +82,31 @@ function CartPage() {
     }
   }
 
+  const handleUpdateCart = async () => {
+    setUpdating('all')
+    window.location.reload()
+  }
+
   const handleRemoveItem = async (key: string) => {
     setRemoving(key)
     try {
-      setItems(prev => prev.filter(item => item.key !== key))
+      const formData = new FormData()
+      formData.append('action', 'dealer_remove_from_cart')
+      formData.append('nonce', config.cartActionNonce)
+      formData.append('cart_item_key', key)
+
+      const response = await fetch(config.ajaxUrl, {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setItems(prev => prev.filter(item => item.key !== key))
+      } else {
+        console.error('Failed to remove item:', result.data?.message)
+      }
     } catch (error) {
       console.error('Failed to remove item:', error)
     } finally {

@@ -139,7 +139,8 @@ function CheckoutPage() {
                 {items.map((item, index) => (
                   <motion.div
                     key={item.key}
-                    className="flex items-center justify-between py-5 border-b border-gray-100 last:border-0"
+                    style={{ paddingTop: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}
+                    className="flex items-center justify-between last:border-0"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
@@ -197,7 +198,7 @@ function CheckoutPage() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 mt-6 pt-6">
+              <div style={{ borderTop: '1px solid #e5e7eb', marginTop: '24px', paddingTop: '24px' }}>
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Total</span>
                   <span className="text-2xl font-bold">
@@ -208,7 +209,7 @@ function CheckoutPage() {
                 </div>
               </div>
 
-              <div className="mt-8 space-y-3">
+              <div style={{ marginTop: '32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <Button
                   className="w-full h-12 text-base"
                   onClick={handlePlaceOrder}

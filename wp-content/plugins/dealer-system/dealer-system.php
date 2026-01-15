@@ -208,6 +208,8 @@ function dealer_get_inventory_data() {
         'cartUrl' => wc_get_cart_url(),
         'nonce' => wp_create_nonce('wc_store_api'),
         'ajaxUrl' => admin_url('admin-ajax.php'),
+        'cartActionNonce' => wp_create_nonce('dealer_cart_action'),
+        'ajaxUrl' => admin_url('admin-ajax.php'),
         'addToCartNonce' => wp_create_nonce('dealer_add_to_cart'),
         'searchNonce' => wp_create_nonce('dealer_search_products')
     ];
@@ -433,7 +435,9 @@ function dealer_get_cart_data() {
         'total' => $cart ? (float) $cart->get_total('edit') : 0,
         'checkoutUrl' => wc_get_checkout_url(),
         'updateCartUrl' => wc_get_cart_url(),
-        'nonce' => wp_create_nonce('wc_store_api')
+        'nonce' => wp_create_nonce('wc_store_api'),
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'cartActionNonce' => wp_create_nonce('dealer_cart_action')
     ];
 }
 
@@ -521,6 +525,8 @@ function dealer_get_checkout_data() {
         'total' => $cart ? (float) $cart->get_total('edit') : 0,
         'cartUrl' => wc_get_cart_url(),
         'nonce' => wp_create_nonce('wc_store_api'),
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'cartActionNonce' => wp_create_nonce('dealer_cart_action'),
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'placeOrderNonce' => wp_create_nonce('dealer_place_order')
     ];
@@ -1365,3 +1371,43 @@ add_action('woocommerce_cancelled_order', function($order_id) {
     }
 });
 
+
+/**
+ * AJAX handler for removing item from cart
+ */
+add_action('wp_ajax_dealer_remove_from_cart', function() {
+    check_ajax_referer('dealer_cart_action', 'nonce');
+    
+    $cart_item_key = sanitize_text_field($_POST['cart_item_key']);
+    
+    if (WC()->cart->remove_cart_item($cart_item_key)) {
+        wp_send_json_success([
+            'message' => 'Item removed',
+            'cart_count' => WC()->cart->get_cart_contents_count()
+        ]);
+    } else {
+        wp_send_json_error(['message' => 'Could not remove item']);
+    }
+});
+
+/**
+ * AJAX handler for updating cart item quantity
+ */
+add_action('wp_ajax_dealer_update_cart_item', function() {
+    check_ajax_referer('dealer_cart_action', 'nonce');
+    
+    $cart_item_key = sanitize_text_field($_POST['cart_item_key']);
+    $quantity = intval($_POST['quantity']);
+    
+    if ($quantity < 1) $quantity = 1;
+    
+    if (WC()->cart->set_quantity($cart_item_key, $quantity)) {
+        WC()->cart->calculate_totals();
+        wp_send_json_success([
+            'message' => 'Cart updated',
+            'cart_count' => WC()->cart->get_cart_contents_count()
+        ]);
+    } else {
+        wp_send_json_error(['message' => 'Could not update cart']);
+    }
+});
