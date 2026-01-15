@@ -96,7 +96,7 @@ add_action('template_redirect', function () {
         $user = wp_get_current_user();
         if (in_array('dealer', (array) $user->roles)) {
             // Allow orders endpoint
-            if (is_wc_endpoint_url('orders') || is_wc_endpoint_url('view-order')) {
+            if (is_wc_endpoint_url('orders') || is_wc_endpoint_url('view-order') || is_wc_endpoint_url('order-pay')) {
                 return;
             }
             // Redirect to homepage for other my-account pages
@@ -174,7 +174,7 @@ add_action('wp_enqueue_scripts', function () {
     }
 
     // Checkout page
-    if (is_checkout() && !is_wc_endpoint_url('order-received') && is_user_logged_in()) {
+    if (is_checkout() && !is_wc_endpoint_url('order-received') && !is_wc_endpoint_url('order-pay') && is_user_logged_in()) {
         wp_enqueue_script('dealer-checkout', $dist_url . 'js/checkout.js', [], time(), true);
         wp_localize_script('dealer-checkout', 'dealerCheckout', dealer_get_checkout_data());
     }
@@ -729,7 +729,6 @@ add_action('wp_head', function () {
         .woocommerce-breadcrumb,
         .page-header {
             display: none !important;
-        }
 
         /* Full width content - reset all containers */
         .site-content,
@@ -771,7 +770,6 @@ add_action('wp_head', function () {
         .u-column2,
         .woocommerce-form-register {
             display: none !important;
-        }
 
         /* Hide product images in order details */
         .woocommerce-table--order-details .product-thumbnail,
@@ -784,7 +782,6 @@ add_action('wp_head', function () {
         .woocommerce img.attachment-woocommerce_thumbnail,
         .woocommerce-order img.wp-post-image {
             display: none !important;
-        }
 
         /* React root containers - centered flexbox */
         #dealer-login-root {
@@ -815,14 +812,14 @@ add_action('wp_head', function () {
             overflow-x: hidden !important;
         }
 
-        /* Hide WooCommerce checkout elements when React checkout is active */
-        .woocommerce-checkout .woocommerce-form-coupon-toggle,
-        .woocommerce-checkout .woocommerce-form-coupon,
-        .woocommerce-checkout #customer_details,
-        .woocommerce-checkout #order_review,
-        .woocommerce-checkout .woocommerce-checkout-review-order,
-        .woocommerce-checkout .woocommerce-NoticeGroup,
-        .woocommerce-checkout .checkout.woocommerce-checkout {
+        /* Hide WooCommerce checkout elements when React checkout is active (not on order-pay page) */
+        body:not(.woocommerce-order-pay) .woocommerce-checkout .woocommerce-form-coupon-toggle,
+        body:not(.woocommerce-order-pay) .woocommerce-checkout .woocommerce-form-coupon,
+        body:not(.woocommerce-order-pay) .woocommerce-checkout #customer_details,
+        body:not(.woocommerce-order-pay) .woocommerce-checkout #order_review,
+        body:not(.woocommerce-order-pay) .woocommerce-checkout .woocommerce-checkout-review-order,
+        body:not(.woocommerce-order-pay) .woocommerce-checkout .woocommerce-NoticeGroup,
+        body:not(.woocommerce-order-pay) .woocommerce-checkout .checkout.woocommerce-checkout {
             display: none !important;
         }
 
@@ -1287,6 +1284,8 @@ add_shortcode('dealer_home', function () {
  * Replace WooCommerce checkout with React checkout for dealers
  */
 add_action('woocommerce_before_checkout_form', function() {
+    // Don't interfere with order-pay page
+    if (is_wc_endpoint_url('order-pay')) return;
     $user = wp_get_current_user();
     if (in_array('dealer', (array) $user->roles)) {
         echo '<div id="dealer-checkout-root"></div>';
@@ -1331,4 +1330,33 @@ add_filter("woocommerce_available_payment_gateways", function($gateways) {
         }
     }
     return $gateways;
+});
+
+/**
+ * Redirect to orders page after cancelling order (instead of my-account)
+ */
+add_filter('woocommerce_get_cancel_order_url_raw', function($url, $order) {
+    // Change redirect to orders page for dealers
+    $user = wp_get_current_user();
+    if (in_array('dealer', (array) $user->roles)) {
+        $url = add_query_arg(array(
+            'cancel_order' => 'true',
+            'order' => $order->get_order_key(),
+            'order_id' => $order->get_id(),
+            'redirect' => wc_get_account_endpoint_url('orders'),
+            '_wpnonce' => wp_create_nonce('woocommerce-cancel_order')
+        ), $order->get_cancel_endpoint());
+    }
+    return $url;
+}, 10, 2);
+
+/**
+ * After order cancelled, redirect dealers to view-order page
+ */
+add_action('woocommerce_cancelled_order', function($order_id) {
+    $user = wp_get_current_user();
+    if (in_array('dealer', (array) $user->roles)) {
+        wp_safe_redirect(wc_get_account_endpoint_url('view-order') . $order_id . '/');
+        exit;
+    }
 });
