@@ -430,6 +430,7 @@ function dealer_get_cart_data() {
 
     return [
         'items' => $items,
+                'viewOrderUrl' => wc_get_account_endpoint_url('view-order') . $order->get_id() . '/?embed=1',
         'total' => $cart ? (float) $cart->get_total('edit') : 0,
         'checkoutUrl' => wc_get_checkout_url(),
         'updateCartUrl' => wc_get_cart_url(),
@@ -470,6 +471,7 @@ function dealer_get_orders_data() {
                 'status' => ucfirst($order->get_status()),
                 'total' => (float) $order->get_total(),
                 'items' => $items,
+                'viewOrderUrl' => wc_get_account_endpoint_url('view-order') . $order->get_id() . '/?embed=1',
             ];
         }
     }
@@ -518,6 +520,7 @@ function dealer_get_checkout_data() {
 
     return [
         'items' => $items,
+                'viewOrderUrl' => wc_get_account_endpoint_url('view-order') . $order->get_id() . '/?embed=1',
         'total' => $cart ? (float) $cart->get_total('edit') : 0,
         'cartUrl' => wc_get_cart_url(),
         'nonce' => wp_create_nonce('wc_store_api'),
@@ -1360,3 +1363,40 @@ add_action('woocommerce_cancelled_order', function($order_id) {
         exit;
     }
 });
+
+/**
+ * Embed mode styles for iframe view-order
+ */
+add_action('wp_head', function() {
+    if (!isset($_GET['embed']) || $_GET['embed'] !== '1') return;
+    if (!is_wc_endpoint_url('view-order')) return;
+    ?>
+    <style>
+        /* Hide everything except content in embed mode */
+        .dealer-header-bar,
+        .dealer-nav-overlay,
+        .site-header,
+        .site-footer,
+        .woocommerce-MyAccount-navigation,
+        #dealer-orders-root {
+            display: none !important;
+        }
+        body {
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+        }
+        .woocommerce-MyAccount-content {
+            width: 100% !important;
+            padding: 20px !important;
+            margin: 0 !important;
+        }
+        #dealer-inventory-root,
+        #dealer-cart-root,
+        #dealer-orders-root,
+        #dealer-checkout-root {
+            display: none !important;
+        }
+    </style>
+    <?php
+}, 999);
