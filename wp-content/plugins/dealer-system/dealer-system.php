@@ -816,7 +816,7 @@ add_action('wp_body_open', function () {
     ?>
     <style>
         .dealer-header-bar {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.8);
@@ -876,24 +876,145 @@ add_action('wp_body_open', function () {
             background: rgba(220, 38, 38, 0.1) !important;
             color: #b91c1c !important;
         }
-        /* Add top padding to body for fixed header */
+        /* Hamburger menu button */
+        .dealer-menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            gap: 5px;
+        }
+        .dealer-menu-toggle span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #374151;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .dealer-menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .dealer-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .dealer-menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        /* Mobile overlay */
+        .dealer-nav-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+        }
+        .dealer-nav-overlay.active {
+            display: block;
+        }
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .dealer-header-bar {
+                width: calc(100% - 32px);
+                min-width: unset;
+                max-width: unset;
+                padding: 10px 16px;
+                top: 16px;
+            }
+            .dealer-menu-toggle {
+                display: flex;
+            }
+            .dealer-nav {
+                position: fixed;
+                top: 0;
+                right: -280px;
+                width: 280px;
+                height: 100vh;
+                background: white;
+                flex-direction: column;
+                padding: 80px 24px 24px;
+                gap: 8px;
+                box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+                z-index: 10000;
+            }
+            .dealer-nav.active {
+                right: 0;
+            }
+            .dealer-nav a {
+                padding: 14px 16px;
+                font-size: 16px;
+                border-radius: 12px;
+            }
+            .dealer-nav-close {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f3f4f6;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 20px;
+                color: #374151;
+            }
+        }
+        @media (min-width: 769px) {
+            .dealer-nav-close {
+                display: none;
+            }
+        }
         body {
             padding-top: 0 !important;
         }
     </style>
+    <div class="dealer-nav-overlay" onclick="closeDealerMenu()"></div>
     <div class="dealer-header-bar">
         <div class="dealer-logo">
             <a href="<?php echo home_url('/'); ?>">
                 <img src="<?php echo DEALER_SYSTEM_URL; ?>dist/ZEEKR_black.png" alt="ZEEKR" height="28">
             </a>
         </div>
+        <button class="dealer-menu-toggle" onclick="toggleDealerMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
         <nav class="dealer-nav">
+            <button class="dealer-nav-close" onclick="closeDealerMenu()">&times;</button>
             <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
             <a href="<?php echo wc_get_cart_url(); ?>">Cart</a>
             <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
             <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
         </nav>
     </div>
+    <script>
+    function toggleDealerMenu() {
+        document.querySelector('.dealer-nav').classList.toggle('active');
+        document.querySelector('.dealer-menu-toggle').classList.toggle('active');
+        document.querySelector('.dealer-nav-overlay').classList.toggle('active');
+        document.body.style.overflow = document.querySelector('.dealer-nav').classList.contains('active') ? 'hidden' : '';
+    }
+    function closeDealerMenu() {
+        document.querySelector('.dealer-nav').classList.remove('active');
+        document.querySelector('.dealer-menu-toggle').classList.remove('active');
+        document.querySelector('.dealer-nav-overlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    </script>
     <?php
 });
 
