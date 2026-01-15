@@ -18,7 +18,6 @@ interface Order {
   status: string
   total: number
   items: OrderItem[]
-  viewOrderUrl: string
 }
 
 declare global {
@@ -85,15 +84,15 @@ function OrdersPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="border-b border-gray-100"
+                className="bg-gray-50 overflow-hidden"
               >
                 {/* Order Header */}
                 <div
-                  className="p-5 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="p-5 flex items-center justify-between cursor-pointer hover:bg-gray-100/80 transition-colors"
                   onClick={() => toggleOrder(order.id)}
                 >
                   <div className="flex items-center gap-5">
-                    <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm">
                       <span className="text-lg">📦</span>
                     </div>
                     <div>
@@ -111,14 +110,14 @@ function OrdersPage() {
                     <span className="text-xl font-bold text-gray-900">${order.total.toFixed(2)}</span>
                     <motion.div
                       animate={{ rotate: expandedOrder === order.id ? 180 : 0 }}
-                      className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center"
+                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center"
                     >
                       <span className="text-gray-400 text-sm">▼</span>
                     </motion.div>
                   </div>
                 </div>
 
-                {/* Order Details - Embedded view-order page */}
+                {/* Order Details */}
                 <AnimatePresence>
                   {expandedOrder === order.id && (
                     <motion.div
@@ -129,22 +128,29 @@ function OrdersPage() {
                       className="overflow-hidden"
                     >
                       <div className="px-5 pb-5">
-                        <iframe
-                          src={order.viewOrderUrl}
-                          className="w-full border-0 rounded-xl bg-white"
-                          style={{ minHeight: '400px' }}
-                          onLoad={(e) => {
-                            const iframe = e.target as HTMLIFrameElement
-                            try {
-                              const body = iframe.contentDocument?.body
-                              if (body) {
-                                iframe.style.height = body.scrollHeight + 'px'
-                              }
-                            } catch {
-                              // Cross-origin, use default height
-                            }
-                          }}
-                        />
+                        <div className="bg-white rounded-xl p-4">
+                          {/* Items List */}
+                          <div className="space-y-3">
+                            {order.items.map((item, itemIndex) => (
+                              <div
+                                key={itemIndex}
+                                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+                              >
+                                <div className="flex-1">
+                                  <p className="text-gray-900 font-medium">{item.name}</p>
+                                  <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                                </div>
+                                <span className="font-semibold text-gray-900">${item.total.toFixed(2)}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Total */}
+                          <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                            <span className="text-gray-500 font-medium">Total</span>
+                            <span className="text-2xl font-bold text-gray-900">${order.total.toFixed(2)}</span>
+                          </div>
+                        </div>
                       </div>
                     </motion.div>
                   )}

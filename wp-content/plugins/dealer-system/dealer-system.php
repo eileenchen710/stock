@@ -470,7 +470,6 @@ function dealer_get_orders_data() {
                 'status' => ucfirst($order->get_status()),
                 'total' => (float) $order->get_total(),
                 'items' => $items,
-                'viewOrderUrl' => wc_get_account_endpoint_url('view-order') . $order->get_id() . '/?embed=1',
             ];
         }
     }
@@ -730,6 +729,7 @@ add_action('wp_head', function () {
         .woocommerce-breadcrumb,
         .page-header {
             display: none !important;
+        }
 
         /* Full width content - reset all containers */
         .site-content,
@@ -771,6 +771,7 @@ add_action('wp_head', function () {
         .u-column2,
         .woocommerce-form-register {
             display: none !important;
+        }
 
         /* Hide product images in order details */
         .woocommerce-table--order-details .product-thumbnail,
@@ -783,6 +784,7 @@ add_action('wp_head', function () {
         .woocommerce img.attachment-woocommerce_thumbnail,
         .woocommerce-order img.wp-post-image {
             display: none !important;
+        }
 
         /* React root containers - centered flexbox */
         #dealer-login-root {
@@ -822,6 +824,7 @@ add_action('wp_head', function () {
         body:not(.woocommerce-order-pay) .woocommerce-checkout .woocommerce-NoticeGroup,
         body:not(.woocommerce-order-pay) .woocommerce-checkout .checkout.woocommerce-checkout {
             display: none !important;
+        }
         }
 
 
@@ -1362,39 +1365,3 @@ add_action('woocommerce_cancelled_order', function($order_id) {
     }
 });
 
-/**
- * Embed mode styles for iframe view-order
- */
-add_action('wp_head', function() {
-    if (!isset($_GET['embed']) || $_GET['embed'] !== '1') return;
-    if (!is_wc_endpoint_url('view-order')) return;
-    ?>
-    <style>
-        /* Hide everything except content in embed mode */
-        .dealer-header-bar,
-        .dealer-nav-overlay,
-        .site-header,
-        .site-footer,
-        .woocommerce-MyAccount-navigation,
-        #dealer-orders-root {
-            display: none !important;
-        }
-        body {
-            padding: 0 !important;
-            margin: 0 !important;
-            background: white !important;
-        }
-        .woocommerce-MyAccount-content {
-            width: 100% !important;
-            padding: 20px !important;
-            margin: 0 !important;
-        }
-        #dealer-inventory-root,
-        #dealer-cart-root,
-        #dealer-orders-root,
-        #dealer-checkout-root {
-            display: none !important;
-        }
-    </style>
-    <?php
-}, 999);
