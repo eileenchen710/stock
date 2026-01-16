@@ -2083,23 +2083,26 @@ add_action('wp_body_open', function () {
         }
         .dealer-nav-badge {
             position: relative;
+            display: inline-flex;
+            align-items: center;
         }
         .dealer-nav-badge .badge {
             position: absolute;
-            top: 0;
-            right: 0;
+            top: 2px;
+            right: 2px;
             background: #dc2626;
             color: white;
             font-size: 10px;
             font-weight: 600;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 9px;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0 5px;
+            padding: 0 4px;
             transform: translate(50%, -50%);
+            line-height: 1;
         }
         /* Hamburger menu button */
         .dealer-menu-toggle {
