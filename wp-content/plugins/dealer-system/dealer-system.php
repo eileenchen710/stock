@@ -203,6 +203,42 @@ add_filter('user_has_cap', function($allcaps, $caps, $args) {
 }, 10, 3);
 
 /**
+ * Hide order actions (Pay/Cancel) for warehouse managers
+ */
+add_filter('woocommerce_my_account_my_orders_actions', function($actions, $order) {
+    $user = wp_get_current_user();
+    if (in_array('warehouse_manager', (array) $user->roles)) {
+        return []; // Remove all actions for warehouse managers
+    }
+    return $actions;
+}, 10, 2);
+
+/**
+ * Add CSS to hide order action buttons for warehouse managers
+ */
+add_action('wp_head', function() {
+    if (!is_user_logged_in()) return;
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles)) return;
+
+    echo '<style>
+        .woocommerce-order-details .order-again,
+        .woocommerce-order-details .wc-forward,
+        .woocommerce .button.pay,
+        .woocommerce .button.cancel,
+        .woocommerce-MyAccount-content .woocommerce-button.button.pay,
+        .woocommerce-MyAccount-content .woocommerce-button.button.cancel,
+        .woocommerce-MyAccount-content .order-again,
+        .woocommerce-order-details__title + .order-again,
+        a.button.pay,
+        a.button.cancel {
+            display: none !important;
+        }
+    </style>';
+});
+
+/**
  * Hide admin bar for dealers
  */
 add_action('after_setup_theme', function () {
