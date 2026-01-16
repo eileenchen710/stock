@@ -789,6 +789,145 @@ add_shortcode('dealer_checkout', function () {
 });
 
 /**
+ * Warehouse Orders shortcode - shows all orders for warehouse managers
+ */
+add_shortcode('warehouse_orders', function () {
+    if (!is_user_logged_in()) {
+        return '<p>Please login to view orders.</p>';
+    }
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles) && !in_array('administrator', (array) $user->roles)) {
+        return '<p>You do not have permission to view this page.</p>';
+    }
+
+    return '<div id="warehouse-orders-root"></div>';
+});
+
+/**
+ * Enqueue warehouse orders script
+ */
+add_action('wp_enqueue_scripts', function () {
+    if (!is_page('warehouse-orders')) {
+        return;
+    }
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles) && !in_array('administrator', (array) $user->roles)) {
+        return;
+    }
+
+    $dist_url = DEALER_SYSTEM_URL . 'dist/';
+    wp_enqueue_style('dealer-styles', $dist_url . 'css/style.css', [], time());
+    wp_enqueue_script('warehouse-orders', $dist_url . 'js/warehouse-orders.js', [], time(), true);
+    wp_localize_script('warehouse-orders', 'warehouseOrders', [
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('warehouse_orders'),
+        'updateNonce' => wp_create_nonce('warehouse_update_order'),
+    ]);
+});
+
+/**
+ * Add type="module" for warehouse orders script
+ */
+add_filter('script_loader_tag', function ($tag, $handle, $src) {
+    if ($handle === 'warehouse-orders') {
+        $tag = str_replace('<script ', '<script type="module" ', $tag);
+    }
+    return $tag;
+}, 10, 3);
+
+/**
+ * AJAX handler for fetching all orders (warehouse manager)
+ */
+add_action('wp_ajax_warehouse_get_orders', function() {
+    check_ajax_referer('warehouse_orders', 'nonce');
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles) && !in_array('administrator', (array) $user->roles)) {
+        wp_send_json_error(['message' => 'Permission denied']);
+        return;
+    }
+
+    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+    $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
+
+    $args = [
+        'limit' => 100,
+        'orderby' => 'date',
+        'order' => 'DESC',
+    ];
+
+    if (!empty($status) && $status !== 'all') {
+        $args['status'] = $status;
+    }
+
+    $orders = wc_get_orders($args);
+    $order_data = [];
+
+    foreach ($orders as $order) {
+        // Search filter
+        if (!empty($search)) {
+            $order_id = $order->get_id();
+            $customer_name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
+            $customer_email = $order->get_billing_email();
+
+            if (stripos($order_id, $search) === false &&
+                stripos($customer_name, $search) === false &&
+                stripos($customer_email, $search) === false) {
+                continue;
+            }
+        }
+
+        $order_data[] = [
+            'id' => $order->get_id(),
+            'status' => $order->get_status(),
+            'status_name' => wc_get_order_status_name($order->get_status()),
+            'date' => $order->get_date_created()->format('Y-m-d H:i'),
+            'total' => $order->get_total(),
+            'customer' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+            'email' => $order->get_billing_email(),
+            'items_count' => $order->get_item_count(),
+        ];
+    }
+
+    wp_send_json_success([
+        'orders' => $order_data,
+        'statuses' => wc_get_order_statuses(),
+    ]);
+});
+
+/**
+ * AJAX handler for updating order status (warehouse manager)
+ */
+add_action('wp_ajax_warehouse_update_order_status', function() {
+    check_ajax_referer('warehouse_update_order', 'nonce');
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles) && !in_array('administrator', (array) $user->roles)) {
+        wp_send_json_error(['message' => 'Permission denied']);
+        return;
+    }
+
+    $order_id = intval($_POST['order_id']);
+    $new_status = sanitize_text_field($_POST['status']);
+
+    $order = wc_get_order($order_id);
+    if (!$order) {
+        wp_send_json_error(['message' => 'Order not found']);
+        return;
+    }
+
+    $order->update_status($new_status, 'Status updated by warehouse manager.');
+
+    wp_send_json_success([
+        'message' => 'Order status updated',
+        'new_status' => $order->get_status(),
+        'new_status_name' => wc_get_order_status_name($order->get_status()),
+    ]);
+});
+
+/**
  * Hide theme elements and set white background
  */
 // Disable caching for dealer pages
@@ -1500,11 +1639,19 @@ add_action('wp_body_open', function () {
         </button>
         <nav class="dealer-nav">
             <button class="dealer-nav-close" onclick="closeDealerMenu()">&times;</button>
-            <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
-            <a href="<?php echo wc_get_cart_url(); ?>">Cart</a>
-            <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
-            <span class="dealer-credit">Balance: $<?php echo number_format(dealer_get_funds_balance(), 2); ?></span>
-            <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
+            <?php if (in_array('warehouse_manager', (array) $user->roles)): ?>
+                <!-- Warehouse Manager Menu -->
+                <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
+                <a href="<?php echo home_url('/warehouse-orders/'); ?>" <?php echo is_page('warehouse-orders') ? 'class="active"' : ''; ?>>Orders</a>
+                <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
+            <?php else: ?>
+                <!-- Dealer Menu -->
+                <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
+                <a href="<?php echo wc_get_cart_url(); ?>">Cart</a>
+                <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
+                <span class="dealer-credit">Balance: $<?php echo number_format(dealer_get_funds_balance(), 2); ?></span>
+                <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
+            <?php endif; ?>
         </nav>
     </div>
     <script>
