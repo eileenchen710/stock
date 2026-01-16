@@ -389,6 +389,9 @@ function InventoryPage() {
                       <TableRow>
                         <TableHead>SKU</TableHead>
                         <TableHead>Product</TableHead>
+                        <TableHead className="text-right">Stock Price</TableHead>
+                        <TableHead className="text-right">Daily Price</TableHead>
+                        <TableHead className="text-right">VOR Price</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead className="text-right">Order</TableHead>
                       </TableRow>
@@ -410,6 +413,15 @@ function InventoryPage() {
                                 {product.sku || '-'}
                               </TableCell>
                               <TableCell className="font-medium text-gray-900">{product.name}</TableCell>
+                              <TableCell className="text-right text-gray-600">
+                                ${product.prices.stock_order.toFixed(2)}
+                              </TableCell>
+                              <TableCell className="text-right text-gray-600">
+                                ${product.prices.daily_order.toFixed(2)}
+                              </TableCell>
+                              <TableCell className="text-right text-gray-600">
+                                ${product.prices.vor_order.toFixed(2)}
+                              </TableCell>
                               <TableCell>
                                 <select
                                   value={selectedType}
