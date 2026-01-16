@@ -187,7 +187,7 @@ function WarehouseOrdersPage() {
 
         {/* Filters */}
         <motion.div
-          className="mb-6 flex gap-4 justify-center items-center"
+          className="mb-8 flex gap-4 justify-center items-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -259,7 +259,7 @@ function WarehouseOrdersPage() {
                       >
                         <TableCell className="font-medium">
                           <a
-                            href={`${config.orderDetailUrl}?id=${order.id}`}
+                            href={`/my-account/view-order/${order.id}/`}
                             className="text-blue-600 hover:text-blue-800 hover:underline"
                           >
                             #{order.id}

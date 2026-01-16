@@ -164,13 +164,20 @@ add_filter('login_redirect', function ($redirect, $request, $user) {
 add_action('template_redirect', function () {
     if (is_account_page() && is_user_logged_in()) {
         $user = wp_get_current_user();
+        // Allow dealers to access orders endpoints
         if (in_array('dealer', (array) $user->roles)) {
-            // Allow orders endpoint
             if (is_wc_endpoint_url('orders') || is_wc_endpoint_url('view-order') || is_wc_endpoint_url('order-pay')) {
                 return;
             }
-            // Redirect to homepage for other my-account pages
             wp_redirect(home_url('/'));
+            exit;
+        }
+        // Allow warehouse managers to access view-order endpoint
+        if (in_array('warehouse_manager', (array) $user->roles)) {
+            if (is_wc_endpoint_url('view-order')) {
+                return;
+            }
+            wp_redirect(home_url('/warehouse-orders/'));
             exit;
         }
     }
