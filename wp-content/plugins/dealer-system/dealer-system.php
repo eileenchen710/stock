@@ -46,6 +46,76 @@ function dealer_logout_url() {
 }
 
 /**
+ * Warehouse Manager - restrict admin menu to only Orders
+ */
+add_action('admin_menu', function() {
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles)) {
+        return;
+    }
+
+    // Remove all top-level menus except Orders
+    global $menu;
+    $allowed_menus = [
+        'edit.php?post_type=shop_order', // WooCommerce Orders
+        'woocommerce',                    // WooCommerce main (will show orders submenu)
+    ];
+
+    foreach ($menu as $key => $item) {
+        if (!isset($item[2])) continue;
+
+        $menu_slug = $item[2];
+        // Keep only allowed menus
+        if (!in_array($menu_slug, $allowed_menus) && $menu_slug !== 'index.php') {
+            remove_menu_page($menu_slug);
+        }
+    }
+
+    // Remove Dashboard
+    remove_menu_page('index.php');
+
+}, 9999);
+
+// Remove WooCommerce submenus for warehouse manager (keep only Orders)
+add_action('admin_menu', function() {
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles)) {
+        return;
+    }
+
+    // Remove WooCommerce submenus except Orders
+    remove_submenu_page('woocommerce', 'wc-admin');
+    remove_submenu_page('woocommerce', 'wc-admin&path=/analytics/overview');
+    remove_submenu_page('woocommerce', 'wc-reports');
+    remove_submenu_page('woocommerce', 'wc-settings');
+    remove_submenu_page('woocommerce', 'wc-status');
+    remove_submenu_page('woocommerce', 'wc-addons');
+
+}, 9999);
+
+// Redirect warehouse manager to Orders page after login
+add_filter('login_redirect', function($redirect_to, $request, $user) {
+    if (isset($user->roles) && in_array('warehouse_manager', (array) $user->roles)) {
+        return admin_url('edit.php?post_type=shop_order');
+    }
+    return $redirect_to;
+}, 10, 3);
+
+// Redirect warehouse manager from dashboard to Orders
+add_action('admin_init', function() {
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles)) {
+        return;
+    }
+
+    global $pagenow;
+    if ($pagenow === 'index.php') {
+        wp_redirect(admin_url('edit.php?post_type=shop_order'));
+        exit;
+    }
+});
+
+/**
  * Force login - redirect to login page if not logged in
  */
 add_action('template_redirect', function () {
