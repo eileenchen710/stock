@@ -185,7 +185,7 @@ function WarehouseOrdersPage() {
 
         {/* Filters */}
         <motion.div
-          className="mb-6 flex flex-wrap gap-4 justify-center items-center"
+          className="mb-6 flex gap-4 justify-center items-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -276,7 +276,7 @@ function WarehouseOrdersPage() {
                             value={order.status}
                             onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
                             disabled={updating === order.id}
-                            className="h-9 px-3 py-1 text-sm border border-gray-200 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                            className="h-10 px-4 py-2 text-sm border border-gray-200 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                             style={{
                               ...(() => {
                                 const style = STATUS_COLORS[order.status] || 'background:#f3f4f6;color:#6b7280;'
