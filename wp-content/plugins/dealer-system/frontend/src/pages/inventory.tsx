@@ -1,4 +1,4 @@
-import { StrictMode, useState, useEffect, useRef } from 'react'
+import { StrictMode, useState, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
 import { motion, AnimatePresence } from 'framer-motion'
 import GradientText from '@/components/ui/GradientText'
@@ -57,12 +57,10 @@ function InventoryPage() {
   const [quantities, setQuantities] = useState<Record<number, number>>({})
   const [orderTypes, setOrderTypes] = useState<Record<number, OrderType>>({})
   const [addingToCart, setAddingToCart] = useState<number | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
   const [isSearching, setIsSearching] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
   const [alert, setAlert] = useState<{ show: boolean; product: string; quantity: number; error?: boolean; message?: string } | null>(null)
   const [backorderDialog, setBackorderDialog] = useState<{ open: boolean; product: Product | null; quantity: number; reason: 'out_of_stock' | 'exceeds_stock' }>({
     open: false,
@@ -75,7 +73,7 @@ function InventoryPage() {
   const searchRequestIdRef = useRef(0)
 
   // Fetch products from server
-  const fetchProducts = async (searchTerm: string, pageNum: number, append: boolean = false) => {
+  const fetchProducts = async (searchTerm: string) => {
     // Cancel previous request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
@@ -87,19 +85,14 @@ function InventoryPage() {
 
     // Track this request
     const requestId = ++searchRequestIdRef.current
-
-    if (pageNum === 1 && !append) {
-      setLoading(true)
-    } else {
-      setLoadingMore(true)
-    }
+    setLoading(true)
 
     try {
       const formData = new FormData()
       formData.append('action', 'dealer_search_products')
       formData.append('nonce', config.searchNonce)
       formData.append('search', searchTerm)
-      formData.append('page', String(pageNum))
+      formData.append('page', '1')
 
       const response = await fetch(config.ajaxUrl, {
         method: 'POST',
@@ -115,14 +108,8 @@ function InventoryPage() {
       }
 
       if (result.success) {
-        if (append) {
-          setProducts(prev => [...prev, ...result.data.products])
-        } else {
-          setProducts(result.data.products)
-        }
-        setHasMore(result.data.has_more)
+        setProducts(result.data.products)
         setTotal(result.data.total)
-        setPage(result.data.page)
       }
     } catch (error) {
       // Ignore abort errors
@@ -134,38 +121,34 @@ function InventoryPage() {
       // Only update loading state if this is still the latest request
       if (requestId === searchRequestIdRef.current) {
         setLoading(false)
-        setLoadingMore(false)
         setIsSearching(false)
       }
     }
   }
 
-  // Initial load - only run once
-  useEffect(() => {
-    fetchProducts('', 1)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   // Handle search with debounce
   const handleSearchChange = (value: string) => {
     setSearch(value)
-    setIsSearching(true)
 
     // Clear previous timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current)
     }
 
-    // Debounce search - 500ms for better UX
-    searchTimeoutRef.current = setTimeout(() => {
-      fetchProducts(value, 1)
-    }, 500)
-  }
-
-  // Load more products
-  const handleLoadMore = () => {
-    if (!loadingMore && hasMore) {
-      fetchProducts(search, page + 1, true)
+    // Only search if there's a search term
+    if (value.trim()) {
+      setIsSearching(true)
+      // Debounce search - 500ms for better UX
+      searchTimeoutRef.current = setTimeout(() => {
+        setHasSearched(true)
+        fetchProducts(value)
+      }, 500)
+    } else {
+      // Clear results if search is empty
+      setProducts([])
+      setHasSearched(false)
+      setIsSearching(false)
+      setTotal(0)
     }
   }
 
@@ -354,123 +337,132 @@ function InventoryPage() {
           />
         </motion.div>
 
+        {/* Initial State - No Search Yet */}
+        {!hasSearched && !isSearching && (
+          <motion.div
+            className="text-center py-16"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <p className="text-gray-500 text-lg">Enter SKU or product name to search</p>
+          </motion.div>
+        )}
+
         {/* Loading State */}
-        {loading ? (
+        {(loading || isSearching) && (
           <motion.div
             className="text-center py-16"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
             <div className="inline-block w-8 h-8 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-500">Loading products...</p>
+            <p className="text-gray-500">Searching...</p>
           </motion.div>
-        ) : (
-          <>
-            {/* Products Table */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white overflow-hidden"
-            >
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Order</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <AnimatePresence>
-                    {products.map((product, index) => {
-                      const selectedType = orderTypes[product.id] || 'stock_order'
-                      return (
-                        <motion.tr
-                          key={product.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ delay: index * 0.02 }}
-                          className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                        >
-                          <TableCell className="font-mono text-gray-600">
-                            {product.sku || '-'}
-                          </TableCell>
-                          <TableCell className="font-medium text-gray-900">{product.name}</TableCell>
-                          <TableCell>
-                            <select
-                              value={selectedType}
-                              onChange={(e) => handleOrderTypeChange(product.id, e.target.value as OrderType)}
-                              className="h-10 px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                            >
-                              {Object.entries(ORDER_TYPE_LABELS).map(([value, label]) => (
-                                <option key={value} value={value}>
-                                  {label}
-                                </option>
-                              ))}
-                            </select>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <Input
-                                type="number"
-                                min={1}
-                                value={quantities[product.id] || 1}
-                                onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value) || 1)}
-                                className="w-20 h-8 text-center"
-                              />
-                              <Button
-                                size="sm"
-                                onClick={() => handleAddToCart(product)}
-                                disabled={addingToCart === product.id}
-                              >
-                                {addingToCart === product.id ? '...' : 'Add'}
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </motion.tr>
-                      )
-                    })}
-                  </AnimatePresence>
-                </TableBody>
-              </Table>
-            </motion.div>
+        )}
 
-            {/* Empty State */}
-            {products.length === 0 && !loading && (
+        {/* Search Results */}
+        {hasSearched && !loading && !isSearching && (
+          <>
+            {products.length > 0 ? (
+              <>
+                {/* Products Table */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-white overflow-hidden"
+                >
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>SKU</TableHead>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead className="text-right">Order</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <AnimatePresence>
+                        {products.map((product, index) => {
+                          const selectedType = orderTypes[product.id] || 'stock_order'
+                          return (
+                            <motion.tr
+                              key={product.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              transition={{ delay: index * 0.02 }}
+                              className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                            >
+                              <TableCell className="font-mono text-gray-600">
+                                {product.sku || '-'}
+                              </TableCell>
+                              <TableCell className="font-medium text-gray-900">{product.name}</TableCell>
+                              <TableCell>
+                                <select
+                                  value={selectedType}
+                                  onChange={(e) => handleOrderTypeChange(product.id, e.target.value as OrderType)}
+                                  className="h-10 px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                                >
+                                  {Object.entries(ORDER_TYPE_LABELS).map(([value, label]) => (
+                                    <option key={value} value={value}>
+                                      {label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2">
+                                  <Input
+                                    type="number"
+                                    min={1}
+                                    value={quantities[product.id] || 1}
+                                    onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value) || 1)}
+                                    className="w-20 h-8 text-center"
+                                  />
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleAddToCart(product)}
+                                    disabled={addingToCart === product.id}
+                                  >
+                                    {addingToCart === product.id ? '...' : 'Add'}
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </motion.tr>
+                          )
+                        })}
+                      </AnimatePresence>
+                    </TableBody>
+                  </Table>
+                </motion.div>
+
+                {/* Results Count */}
+                <motion.div
+                  className="mt-6 text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <p className="text-sm text-gray-400">
+                    Found {total} product{total !== 1 ? 's' : ''}
+                  </p>
+                </motion.div>
+              </>
+            ) : (
+              /* No Results */
               <motion.div
                 className="text-center py-12"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
                 <p className="text-gray-500">
-                  {search ? `No products found matching "${search}"` : 'No products available'}
+                  No products found matching "{search}"
                 </p>
               </motion.div>
             )}
-
-            {/* Load More / Stats */}
-            <motion.div
-              className="mt-6 text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              {hasMore && !search && (
-                <Button
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}
-                  className="mb-4"
-                >
-                  {loadingMore ? 'Loading...' : 'Load More'}
-                </Button>
-              )}
-              <p className="text-sm text-gray-400">
-                {isSearching ? 'Searching...' : `Showing ${products.length} of ${total} products`}
-              </p>
-            </motion.div>
           </>
         )}
       </div>
