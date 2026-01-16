@@ -25,6 +25,7 @@ declare global {
       ajaxUrl: string
       nonce: string
       updateNonce: string
+      orderDetailUrl: string
     }
   }
 }
@@ -44,6 +45,7 @@ function WarehouseOrdersPage() {
     ajaxUrl: '',
     nonce: '',
     updateNonce: '',
+    orderDetailUrl: '/warehouse-order/',
   }
 
   const [orders, setOrders] = useState<Order[]>([])
@@ -255,8 +257,13 @@ function WarehouseOrdersPage() {
                         transition={{ delay: index * 0.02 }}
                         className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                       >
-                        <TableCell className="font-medium text-gray-900">
-                          #{order.id}
+                        <TableCell className="font-medium">
+                          <a
+                            href={`${config.orderDetailUrl}?id=${order.id}`}
+                            className="text-blue-600 hover:text-blue-800 hover:underline"
+                          >
+                            #{order.id}
+                          </a>
                         </TableCell>
                         <TableCell className="text-gray-600">
                           {order.date}

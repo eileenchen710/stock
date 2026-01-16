@@ -23,6 +23,7 @@ export default defineConfig({
         orders: path.resolve(__dirname, 'src/pages/orders.tsx'),
         checkout: path.resolve(__dirname, 'src/pages/checkout.tsx'),
         'warehouse-orders': path.resolve(__dirname, 'src/pages/warehouse-orders.tsx'),
+        'warehouse-order-detail': path.resolve(__dirname, 'src/pages/warehouse-order-detail.tsx'),
       },
       output: {
         entryFileNames: 'js/[name].js',

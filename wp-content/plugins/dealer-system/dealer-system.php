@@ -805,6 +805,22 @@ add_shortcode('warehouse_orders', function () {
 });
 
 /**
+ * Warehouse Order Detail shortcode - shows single order detail for warehouse managers
+ */
+add_shortcode('warehouse_order_detail', function () {
+    if (!is_user_logged_in()) {
+        return '<p>Please login to view order details.</p>';
+    }
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles) && !in_array('administrator', (array) $user->roles)) {
+        return '<p>You do not have permission to view this page.</p>';
+    }
+
+    return '<div id="warehouse-order-detail-root"></div>';
+});
+
+/**
  * Enqueue warehouse orders script
  */
 add_action('wp_enqueue_scripts', function () {
@@ -824,14 +840,42 @@ add_action('wp_enqueue_scripts', function () {
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('warehouse_orders'),
         'updateNonce' => wp_create_nonce('warehouse_update_order'),
+        'orderDetailUrl' => home_url('/warehouse-order/'),
     ]);
 });
 
 /**
- * Add type="module" for warehouse orders script
+ * Enqueue warehouse order detail script
+ */
+add_action('wp_enqueue_scripts', function () {
+    if (!is_page('warehouse-order')) {
+        return;
+    }
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles) && !in_array('administrator', (array) $user->roles)) {
+        return;
+    }
+
+    $order_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+    $dist_url = DEALER_SYSTEM_URL . 'dist/';
+    wp_enqueue_style('dealer-styles', $dist_url . 'css/style.css', [], time());
+    wp_enqueue_script('warehouse-order-detail', $dist_url . 'js/warehouse-order-detail.js', [], time(), true);
+    wp_localize_script('warehouse-order-detail', 'warehouseOrderDetail', [
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('warehouse_order_detail'),
+        'updateNonce' => wp_create_nonce('warehouse_update_order'),
+        'orderId' => $order_id,
+        'ordersPageUrl' => home_url('/warehouse-orders/'),
+    ]);
+});
+
+/**
+ * Add type="module" for warehouse scripts
  */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
-    if ($handle === 'warehouse-orders') {
+    if ($handle === 'warehouse-orders' || $handle === 'warehouse-order-detail') {
         $tag = str_replace('<script ', '<script type="module" ', $tag);
     }
     return $tag;
@@ -893,6 +937,67 @@ add_action('wp_ajax_warehouse_get_orders', function() {
 
     wp_send_json_success([
         'orders' => $order_data,
+        'statuses' => wc_get_order_statuses(),
+    ]);
+});
+
+/**
+ * AJAX handler for fetching single order detail (warehouse manager)
+ */
+add_action('wp_ajax_warehouse_get_order_detail', function() {
+    check_ajax_referer('warehouse_order_detail', 'nonce');
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles) && !in_array('administrator', (array) $user->roles)) {
+        wp_send_json_error(['message' => 'Permission denied']);
+        return;
+    }
+
+    $order_id = intval($_POST['order_id']);
+    $order = wc_get_order($order_id);
+
+    if (!$order) {
+        wp_send_json_error(['message' => 'Order not found']);
+        return;
+    }
+
+    $items = [];
+    foreach ($order->get_items() as $item) {
+        $product = $item->get_product();
+        $order_type = $item->get_meta('_dealer_order_type') ?: 'stock_order';
+
+        $items[] = [
+            'name' => $item->get_name(),
+            'sku' => $product ? $product->get_sku() : '',
+            'quantity' => $item->get_quantity(),
+            'price' => (float) ($item->get_total() / max(1, $item->get_quantity())),
+            'total' => (float) $item->get_total(),
+            'order_type' => $order_type,
+        ];
+    }
+
+    // Get order notes
+    $notes = '';
+    $order_notes = wc_get_order_notes(['order_id' => $order_id, 'type' => 'customer']);
+    if (!empty($order_notes)) {
+        $notes = $order_notes[0]->content;
+    }
+
+    $order_data = [
+        'id' => $order->get_id(),
+        'status' => $order->get_status(),
+        'status_name' => wc_get_order_status_name($order->get_status()),
+        'date' => $order->get_date_created()->format('Y-m-d H:i'),
+        'total' => $order->get_total(),
+        'customer' => $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(),
+        'email' => $order->get_billing_email(),
+        'phone' => $order->get_billing_phone(),
+        'items' => $items,
+        'notes' => $notes,
+    ];
+
+    wp_send_json_success([
+        'order' => $order_data,
         'statuses' => wc_get_order_statuses(),
     ]);
 });
