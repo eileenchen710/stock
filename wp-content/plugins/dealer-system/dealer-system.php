@@ -334,7 +334,7 @@ add_action('woocommerce_new_order', function($order_id) {
 
     $message .= sprintf(
         "\nView order: %s\n",
-        admin_url('post.php?post=' . $order_id . '&action=edit')
+        home_url('/my-account/view-order/' . $order_id . '/')
     );
 
     // Send to each warehouse manager
