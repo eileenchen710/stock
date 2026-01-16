@@ -186,39 +186,21 @@ add_action('template_redirect', function () {
 /**
  * Allow warehouse managers to view any order in WooCommerce
  */
-add_filter('woocommerce_order_is_purchasable', '__return_true');
-add_action('template_redirect', function() {
-    if (!is_wc_endpoint_url('view-order')) {
-        return;
+add_filter('user_has_cap', function($allcaps, $caps, $args) {
+    // Check if this is a view_order capability check
+    if (!isset($args[0]) || $args[0] !== 'view_order') {
+        return $allcaps;
     }
 
     $user = wp_get_current_user();
     if (!in_array('warehouse_manager', (array) $user->roles)) {
-        return;
+        return $allcaps;
     }
 
-    // Get order ID from URL
-    global $wp;
-    $order_id = absint($wp->query_vars['view-order']);
-
-    if (!$order_id) {
-        return;
-    }
-
-    $order = wc_get_order($order_id);
-    if (!$order) {
-        return;
-    }
-
-    // Override the order customer check for warehouse managers
-    add_filter('woocommerce_order_get_user_id', function($user_id, $order) {
-        $current_user = wp_get_current_user();
-        if (in_array('warehouse_manager', (array) $current_user->roles)) {
-            return get_current_user_id();
-        }
-        return $user_id;
-    }, 10, 2);
-}, 5);
+    // Grant the capability for warehouse managers
+    $allcaps['view_order'] = true;
+    return $allcaps;
+}, 10, 3);
 
 /**
  * Hide admin bar for dealers
