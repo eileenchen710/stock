@@ -346,6 +346,207 @@ add_action('woocommerce_new_order', function($order_id) {
 }, 10, 1);
 
 /**
+ * Display dealer information on order detail page
+ */
+add_action('woocommerce_order_details_after_customer_details', function($order) {
+    $customer_id = $order->get_customer_id();
+    if (!$customer_id) return;
+
+    $customer = get_user_by('ID', $customer_id);
+    if (!$customer || !in_array('dealer', (array) $customer->roles)) return;
+
+    // Get dealer meta
+    $business_name = get_user_meta($customer_id, 'dealer_business_name', true);
+    $dealer_code = get_user_meta($customer_id, 'dealer_dealer_company_code', true);
+    $dealer_group = get_user_meta($customer_id, 'dealer_dealer_group', true);
+    $company_name = get_user_meta($customer_id, 'dealer_dealer_company_name', true);
+    $abn = get_user_meta($customer_id, 'dealer_dealer_abn', true);
+
+    // Contact info
+    $accounts_payable = get_user_meta($customer_id, 'dealer_accounts_payable', true);
+    $email = $customer->user_email;
+    $phone = get_user_meta($customer_id, 'dealer_phone', true);
+    $mobile = get_user_meta($customer_id, 'dealer_mobile_phone', true);
+
+    // Address
+    $address_full = get_user_meta($customer_id, 'dealer_delivery_address_full', true);
+    $suburb = get_user_meta($customer_id, 'dealer_suburb', true);
+    $state = get_user_meta($customer_id, 'dealer_state', true);
+    $postcode = get_user_meta($customer_id, 'dealer_post_code', true);
+
+    // Parts Manager
+    $parts_manager = get_user_meta($customer_id, 'dealer_parts_manager', true);
+    $parts_manager_email = get_user_meta($customer_id, 'dealer_parts_manager_email', true);
+    $parts_manager_phone = get_user_meta($customer_id, 'dealer_parts_manager_phone', true);
+    ?>
+    <style>
+        .dealer-info-section {
+            margin-top: 32px;
+            padding: 24px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+        .dealer-info-section h3 {
+            margin: 0 0 20px 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        .dealer-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .dealer-info-item {
+            margin-bottom: 12px;
+        }
+        .dealer-info-item label {
+            display: block;
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .dealer-info-item span {
+            font-size: 14px;
+            color: #111827;
+            font-weight: 500;
+        }
+        .dealer-info-group {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .dealer-info-group h4 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+    </style>
+    <section class="dealer-info-section">
+        <h3>Dealer Information</h3>
+        <div class="dealer-info-grid">
+            <div class="dealer-info-group">
+                <h4>Business Details</h4>
+                <?php if ($business_name && $business_name !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Business Name</label>
+                    <span><?php echo esc_html($business_name); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($company_name && $company_name !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Company Name</label>
+                    <span><?php echo esc_html($company_name); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($dealer_code && $dealer_code !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Dealer Code</label>
+                    <span><?php echo esc_html($dealer_code); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($dealer_group && $dealer_group !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Dealer Group</label>
+                    <span><?php echo esc_html($dealer_group); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($abn && $abn !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>ABN</label>
+                    <span><?php echo esc_html($abn); ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="dealer-info-group">
+                <h4>Contact Person</h4>
+                <?php if ($accounts_payable && $accounts_payable !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Name</label>
+                    <span><?php echo esc_html($accounts_payable); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($email && $email !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Email</label>
+                    <span><a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($phone && $phone !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Phone</label>
+                    <span><?php echo esc_html($phone); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($mobile && $mobile !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Mobile</label>
+                    <span><?php echo esc_html($mobile); ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="dealer-info-group">
+                <h4>Delivery Address</h4>
+                <?php if ($address_full && $address_full !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Address</label>
+                    <span><?php echo esc_html($address_full); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($suburb && $suburb !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Suburb</label>
+                    <span><?php echo esc_html($suburb); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($state && $state !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>State</label>
+                    <span><?php echo esc_html($state); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($postcode && $postcode !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Post Code</label>
+                    <span><?php echo esc_html($postcode); ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <?php if ($parts_manager && $parts_manager !== 'N/A'): ?>
+            <div class="dealer-info-group">
+                <h4>Parts Manager</h4>
+                <div class="dealer-info-item">
+                    <label>Name</label>
+                    <span><?php echo esc_html($parts_manager); ?></span>
+                </div>
+                <?php if ($parts_manager_email && $parts_manager_email !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Email</label>
+                    <span><a href="mailto:<?php echo esc_attr($parts_manager_email); ?>"><?php echo esc_html($parts_manager_email); ?></a></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($parts_manager_phone && $parts_manager_phone !== 'N/A'): ?>
+                <div class="dealer-info-item">
+                    <label>Phone</label>
+                    <span><?php echo esc_html($parts_manager_phone); ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+    </section>
+    <?php
+}, 20);
+
+/**
  * Hide admin bar for dealers
  */
 add_action('after_setup_theme', function () {
