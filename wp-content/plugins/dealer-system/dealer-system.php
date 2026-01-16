@@ -1989,6 +1989,17 @@ add_action('wp_body_open', function () {
     if (function_exists('WC') && WC()->cart) {
         $cart_count = WC()->cart->get_cart_contents_count();
     }
+
+    // Count processing orders for warehouse managers
+    $processing_count = 0;
+    if (in_array('warehouse_manager', (array) $user->roles) && function_exists('wc_get_orders')) {
+        $processing_orders = wc_get_orders([
+            'status' => 'processing',
+            'limit' => -1,
+            'return' => 'ids',
+        ]);
+        $processing_count = count($processing_orders);
+    }
     ?>
     <style>
         .dealer-header-bar {
@@ -2069,6 +2080,26 @@ add_action('wp_body_open', function () {
         .dealer-logout:hover {
             background: rgba(220, 38, 38, 0.1) !important;
             color: #b91c1c !important;
+        }
+        .dealer-nav-badge {
+            position: relative;
+        }
+        .dealer-nav-badge .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #dc2626;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            transform: translate(50%, -50%);
         }
         /* Hamburger menu button */
         .dealer-menu-toggle {
@@ -2223,7 +2254,12 @@ add_action('wp_body_open', function () {
             <?php if (in_array('warehouse_manager', (array) $user->roles)): ?>
                 <!-- Warehouse Manager Menu -->
                 <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
-                <a href="<?php echo home_url('/warehouse-orders/'); ?>" <?php echo is_page('warehouse-orders') ? 'class="active"' : ''; ?>>Orders</a>
+                <span class="dealer-nav-badge">
+                    <a href="<?php echo home_url('/warehouse-orders/'); ?>" <?php echo is_page('warehouse-orders') ? 'class="active"' : ''; ?>>Orders</a>
+                    <?php if ($processing_count > 0): ?>
+                        <span class="badge"><?php echo $processing_count; ?></span>
+                    <?php endif; ?>
+                </span>
                 <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
             <?php else: ?>
                 <!-- Dealer Menu -->
