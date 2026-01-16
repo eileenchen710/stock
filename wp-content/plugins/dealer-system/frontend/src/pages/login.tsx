@@ -116,6 +116,20 @@ function LoginPage() {
                 Sign In
               </Button>
             </motion.div>
+
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.55 }}
+            >
+              <a
+                href="/my-account/lost-password/"
+                className="text-gray-400 text-sm hover:text-white transition-colors"
+              >
+                Forgot Password?
+              </a>
+            </motion.div>
           </form>
 
           {/* Footer */}
