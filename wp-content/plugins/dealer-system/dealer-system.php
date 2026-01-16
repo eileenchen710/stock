@@ -551,6 +551,88 @@ add_action('woocommerce_after_order_details', function($order) {
 }, 20);
 
 /**
+ * Add Products column to My Account Orders table
+ */
+add_filter('woocommerce_my_account_my_orders_columns', function($columns) {
+    $new_columns = [];
+    foreach ($columns as $key => $label) {
+        $new_columns[$key] = $label;
+        // Add products column after order-number
+        if ($key === 'order-number') {
+            $new_columns['order-products'] = __('Products', 'woocommerce');
+        }
+    }
+    return $new_columns;
+});
+
+/**
+ * Render Products column content in My Account Orders table
+ */
+add_action('woocommerce_my_account_my_orders_column_order-products', function($order) {
+    $items = $order->get_items();
+    $product_names = [];
+
+    foreach ($items as $item) {
+        $qty = $item->get_quantity();
+        $name = $item->get_name();
+        $product_names[] = $name . ' x' . $qty;
+    }
+
+    $full_text = implode(', ', $product_names);
+    $short_text = $full_text;
+
+    // Truncate for display
+    if (strlen($full_text) > 50) {
+        $short_text = substr($full_text, 0, 47) . '...';
+    }
+
+    echo '<span class="order-products-cell" title="' . esc_attr($full_text) . '">' . esc_html($short_text) . '</span>';
+});
+
+/**
+ * Add CSS for Products column in Orders table
+ */
+add_action('wp_head', function() {
+    if (!is_account_page()) return;
+    ?>
+    <style>
+        .woocommerce-orders-table .order-products-cell {
+            display: inline-block;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: help;
+        }
+        .woocommerce-orders-table td.woocommerce-orders-table__cell-order-products {
+            max-width: 220px;
+        }
+        /* Tooltip styling */
+        .order-products-cell {
+            position: relative;
+        }
+        .order-products-cell:hover::after {
+            content: attr(title);
+            position: absolute;
+            left: 0;
+            top: 100%;
+            background: #1f2937;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: normal;
+            max-width: 300px;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 4px;
+        }
+    </style>
+    <?php
+});
+
+/**
  * Hide admin bar for dealers
  */
 add_action('after_setup_theme', function () {
