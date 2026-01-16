@@ -2054,9 +2054,18 @@ add_action('wp_head', function () {
             background: #dcfce7 !important;
             border: 1px solid #86efac !important;
             color: #166534 !important;
-            padding: 16px !important;
+            padding: 16px 16px 16px 48px !important;
             border-radius: 8px !important;
             margin-bottom: 24px !important;
+            position: relative !important;
+        }
+
+        body.woocommerce-lost-password .woocommerce-message::before,
+        body.woocommerce-reset-password .woocommerce-message::before {
+            position: absolute !important;
+            left: 16px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
         }
 
         /* Back to login link */
