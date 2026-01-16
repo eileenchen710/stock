@@ -184,6 +184,43 @@ add_action('template_redirect', function () {
 }, 1);
 
 /**
+ * Allow warehouse managers to view any order in WooCommerce
+ */
+add_filter('woocommerce_order_is_purchasable', '__return_true');
+add_action('template_redirect', function() {
+    if (!is_wc_endpoint_url('view-order')) {
+        return;
+    }
+
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles)) {
+        return;
+    }
+
+    // Get order ID from URL
+    global $wp;
+    $order_id = absint($wp->query_vars['view-order']);
+
+    if (!$order_id) {
+        return;
+    }
+
+    $order = wc_get_order($order_id);
+    if (!$order) {
+        return;
+    }
+
+    // Override the order customer check for warehouse managers
+    add_filter('woocommerce_order_get_user_id', function($user_id, $order) {
+        $current_user = wp_get_current_user();
+        if (in_array('warehouse_manager', (array) $current_user->roles)) {
+            return get_current_user_id();
+        }
+        return $user_id;
+    }, 10, 2);
+}, 5);
+
+/**
  * Hide admin bar for dealers
  */
 add_action('after_setup_theme', function () {
@@ -903,6 +940,9 @@ add_action('wp_ajax_warehouse_get_orders', function() {
     $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
     $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
 
+    // Exclude draft and refunded statuses
+    $excluded_statuses = ['draft', 'refunded', 'auto-draft', 'trash'];
+
     $args = [
         'limit' => 100,
         'orderby' => 'date',
@@ -911,12 +951,22 @@ add_action('wp_ajax_warehouse_get_orders', function() {
 
     if (!empty($status) && $status !== 'all') {
         $args['status'] = $status;
+    } else {
+        // Get all statuses except excluded ones
+        $args['status'] = array_diff(
+            array_keys(wc_get_order_statuses()),
+            array_map(function($s) { return 'wc-' . $s; }, $excluded_statuses)
+        );
     }
 
     $orders = wc_get_orders($args);
     $order_data = [];
 
     foreach ($orders as $order) {
+        // Skip excluded statuses
+        if (in_array($order->get_status(), $excluded_statuses)) {
+            continue;
+        }
         // Search filter
         if (!empty($search)) {
             $order_id = $order->get_id();
@@ -942,9 +992,16 @@ add_action('wp_ajax_warehouse_get_orders', function() {
         ];
     }
 
+    // Filter out excluded statuses from the list
+    $all_statuses = wc_get_order_statuses();
+    $filtered_statuses = array_filter($all_statuses, function($key) use ($excluded_statuses) {
+        $status_key = str_replace('wc-', '', $key);
+        return !in_array($status_key, $excluded_statuses);
+    }, ARRAY_FILTER_USE_KEY);
+
     wp_send_json_success([
         'orders' => $order_data,
-        'statuses' => wc_get_order_statuses(),
+        'statuses' => $filtered_statuses,
     ]);
 });
 
