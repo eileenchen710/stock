@@ -785,7 +785,8 @@ function dealer_get_inventory_data() {
         'cartActionNonce' => wp_create_nonce('dealer_cart_action'),
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'addToCartNonce' => wp_create_nonce('dealer_add_to_cart'),
-        'searchNonce' => wp_create_nonce('dealer_search_products')
+        'searchNonce' => wp_create_nonce('dealer_search_products'),
+        'isWarehouseManager' => in_array('warehouse_manager', (array) wp_get_current_user()->roles)
     ];
 }
 
@@ -2748,7 +2749,7 @@ add_shortcode('dealer_home', function () {
         <div class="dealer-home-content">
             <h1 class="dealer-home-title">Dealer Ordering & Inventory Portal</h1>
             <p class="dealer-home-description">Manage inventory, place orders, and track fulfillment in one system.</p>
-            <a href="/inventory/" class="dealer-home-btn">Order Now</a>
+            <?php if (in_array("warehouse_manager", (array) wp_get_current_user()->roles)): ?><a href="/warehouse-orders/" class="dealer-home-btn">Check Orders</a><?php else: ?><a href="/inventory/" class="dealer-home-btn">Order Now</a><?php endif; ?>
         </div>
     </div>
     <script>

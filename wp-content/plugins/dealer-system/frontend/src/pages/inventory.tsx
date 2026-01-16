@@ -38,6 +38,7 @@ declare global {
       ajaxUrl: string
       addToCartNonce: string
       searchNonce: string
+      isWarehouseManager: boolean
     }
   }
 }
@@ -49,8 +50,11 @@ function InventoryPage() {
     nonce: '',
     ajaxUrl: '',
     addToCartNonce: '',
-    searchNonce: ''
+    searchNonce: '',
+    isWarehouseManager: false
   }
+
+  const isWarehouseManager = config.isWarehouseManager
 
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState('')
@@ -392,8 +396,8 @@ function InventoryPage() {
                         <TableHead className="text-right">Stock Price</TableHead>
                         <TableHead className="text-right">Daily Price</TableHead>
                         <TableHead className="text-right">VOR Price</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead className="text-right">Order</TableHead>
+                        {!isWarehouseManager && <TableHead>Type</TableHead>}
+                        {!isWarehouseManager && <TableHead className="text-right">Order</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -422,37 +426,41 @@ function InventoryPage() {
                               <TableCell className="text-right text-gray-600">
                                 ${product.prices.vor_order.toFixed(2)}
                               </TableCell>
-                              <TableCell>
-                                <select
-                                  value={selectedType}
-                                  onChange={(e) => handleOrderTypeChange(product.id, e.target.value as OrderType)}
-                                  className="h-10 px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                                >
-                                  {Object.entries(ORDER_TYPE_LABELS).map(([value, label]) => (
-                                    <option key={value} value={value}>
-                                      {label}
-                                    </option>
-                                  ))}
-                                </select>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex items-center justify-end gap-2">
-                                  <Input
-                                    type="number"
-                                    min={1}
-                                    value={quantities[product.id] || 1}
-                                    onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value) || 1)}
-                                    className="w-20 h-8 text-center"
-                                  />
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleAddToCart(product)}
-                                    disabled={addingToCart === product.id}
+                              {!isWarehouseManager && (
+                                <TableCell>
+                                  <select
+                                    value={selectedType}
+                                    onChange={(e) => handleOrderTypeChange(product.id, e.target.value as OrderType)}
+                                    className="h-10 px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                                   >
-                                    {addingToCart === product.id ? '...' : 'Add'}
-                                  </Button>
-                                </div>
-                              </TableCell>
+                                    {Object.entries(ORDER_TYPE_LABELS).map(([value, label]) => (
+                                      <option key={value} value={value}>
+                                        {label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </TableCell>
+                              )}
+                              {!isWarehouseManager && (
+                                <TableCell className="text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <Input
+                                      type="number"
+                                      min={1}
+                                      value={quantities[product.id] || 1}
+                                      onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value) || 1)}
+                                      className="w-20 h-8 text-center"
+                                    />
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleAddToCart(product)}
+                                      disabled={addingToCart === product.id}
+                                    >
+                                      {addingToCart === product.id ? '...' : 'Add'}
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              )}
                             </motion.tr>
                           )
                         })}
