@@ -2952,17 +2952,52 @@ add_action('wp_ajax_dealer_get_account', function() {
     check_ajax_referer('dealer_get_account', 'nonce');
 
     $user = wp_get_current_user();
+    $id = $user->ID;
 
     wp_send_json_success([
+        // Basic Info
         'email' => $user->user_email,
-        'first_name' => get_user_meta($user->ID, 'first_name', true),
-        'last_name' => get_user_meta($user->ID, 'last_name', true),
-        'phone' => get_user_meta($user->ID, 'billing_phone', true),
-        'company' => get_user_meta($user->ID, 'billing_company', true),
-        'address' => get_user_meta($user->ID, 'billing_address_1', true),
-        'city' => get_user_meta($user->ID, 'billing_city', true),
-        'state' => get_user_meta($user->ID, 'billing_state', true),
-        'postcode' => get_user_meta($user->ID, 'billing_postcode', true),
+        'dealer_group' => get_user_meta($id, 'dealer_dealer_group', true),
+        'dealer_company_name' => get_user_meta($id, 'dealer_dealer_company_name', true),
+        'business_name' => get_user_meta($id, 'dealer_business_name', true),
+
+        // Address & Hours
+        'delivery_address_full' => get_user_meta($id, 'dealer_delivery_address_full', true),
+        'suburb' => get_user_meta($id, 'dealer_suburb', true),
+        'state' => get_user_meta($id, 'dealer_state', true),
+        'post_code' => get_user_meta($id, 'dealer_post_code', true),
+        'operating_hours_weekday' => get_user_meta($id, 'dealer_operating_hours_weekday', true),
+        'operating_hours_saturday' => get_user_meta($id, 'dealer_operating_hours_saturday', true),
+
+        // Accounts Payable
+        'accounts_payable' => get_user_meta($id, 'dealer_accounts_payable', true),
+        'accounts_payable_email' => get_user_meta($id, 'dealer_email', true),
+        'accounts_payable_mobile' => get_user_meta($id, 'dealer_mobile_phone', true),
+        'accounts_payable_phone' => get_user_meta($id, 'dealer_phone', true),
+
+        // Parts Manager
+        'parts_manager' => get_user_meta($id, 'dealer_parts_manager', true),
+        'parts_manager_email' => get_user_meta($id, 'dealer_parts_manager_email', true),
+        'parts_manager_mobile' => get_user_meta($id, 'dealer_parts_manager_mobile', true),
+        'parts_manager_phone' => get_user_meta($id, 'dealer_parts_manager_phone', true),
+
+        // Parts Interpreter (Front Counter)
+        'parts_interpreter_front' => get_user_meta($id, 'dealer_parts_interpreter_front', true),
+        'parts_interpreter_front_email' => get_user_meta($id, 'dealer_parts_interpreter_front_email', true),
+        'parts_interpreter_front_mobile' => get_user_meta($id, 'dealer_parts_interpreter_front_mobile', true),
+        'parts_interpreter_front_phone' => get_user_meta($id, 'dealer_parts_interpreter_front_phone', true),
+
+        // Parts Interpreter (Back Counter)
+        'parts_interpreter_back' => get_user_meta($id, 'dealer_parts_interpreter_back', true),
+        'parts_interpreter_back_email' => get_user_meta($id, 'dealer_parts_interpreter_back_email', true),
+        'parts_interpreter_back_mobile' => get_user_meta($id, 'dealer_parts_interpreter_back_mobile', true),
+        'parts_interpreter_back_phone' => get_user_meta($id, 'dealer_parts_interpreter_back_phone', true),
+
+        // Parts Group
+        'parts_group' => get_user_meta($id, 'dealer_parts_group', true),
+        'parts_group_email' => get_user_meta($id, 'dealer_parts_group_email', true),
+        'parts_group_mobile' => get_user_meta($id, 'dealer_parts_group_mobile', true),
+        'parts_group_phone' => get_user_meta($id, 'dealer_parts_group_phone', true),
     ]);
 });
 
@@ -2973,34 +3008,65 @@ add_action('wp_ajax_dealer_update_account', function() {
     check_ajax_referer('dealer_update_account', 'nonce');
 
     $user = wp_get_current_user();
-    $user_id = $user->ID;
+    $id = $user->ID;
 
     // Update email if changed
     $new_email = sanitize_email($_POST['email']);
     if ($new_email && $new_email !== $user->user_email) {
-        // Check if email is already in use
-        if (email_exists($new_email) && email_exists($new_email) !== $user_id) {
+        if (email_exists($new_email) && email_exists($new_email) !== $id) {
             wp_send_json_error(['message' => 'This email is already in use']);
             return;
         }
-        wp_update_user([
-            'ID' => $user_id,
-            'user_email' => $new_email,
-        ]);
+        wp_update_user(['ID' => $id, 'user_email' => $new_email]);
     }
 
-    // Update user meta
-    update_user_meta($user_id, 'first_name', sanitize_text_field($_POST['first_name']));
-    update_user_meta($user_id, 'last_name', sanitize_text_field($_POST['last_name']));
-    update_user_meta($user_id, 'billing_phone', sanitize_text_field($_POST['phone']));
-    update_user_meta($user_id, 'billing_company', sanitize_text_field($_POST['company']));
-    update_user_meta($user_id, 'billing_address_1', sanitize_text_field($_POST['address']));
-    update_user_meta($user_id, 'billing_city', sanitize_text_field($_POST['city']));
-    update_user_meta($user_id, 'billing_state', sanitize_text_field($_POST['state']));
-    update_user_meta($user_id, 'billing_postcode', sanitize_text_field($_POST['postcode']));
+    // Update all dealer fields
+    $fields = [
+        'dealer_dealer_group' => 'dealer_group',
+        'dealer_dealer_company_name' => 'dealer_company_name',
+        'dealer_business_name' => 'business_name',
+        'dealer_delivery_address_full' => 'delivery_address_full',
+        'dealer_suburb' => 'suburb',
+        'dealer_state' => 'state',
+        'dealer_post_code' => 'post_code',
+        'dealer_operating_hours_weekday' => 'operating_hours_weekday',
+        'dealer_operating_hours_saturday' => 'operating_hours_saturday',
+        'dealer_accounts_payable' => 'accounts_payable',
+        'dealer_email' => 'accounts_payable_email',
+        'dealer_mobile_phone' => 'accounts_payable_mobile',
+        'dealer_phone' => 'accounts_payable_phone',
+        'dealer_parts_manager' => 'parts_manager',
+        'dealer_parts_manager_email' => 'parts_manager_email',
+        'dealer_parts_manager_mobile' => 'parts_manager_mobile',
+        'dealer_parts_manager_phone' => 'parts_manager_phone',
+        'dealer_parts_interpreter_front' => 'parts_interpreter_front',
+        'dealer_parts_interpreter_front_email' => 'parts_interpreter_front_email',
+        'dealer_parts_interpreter_front_mobile' => 'parts_interpreter_front_mobile',
+        'dealer_parts_interpreter_front_phone' => 'parts_interpreter_front_phone',
+        'dealer_parts_interpreter_back' => 'parts_interpreter_back',
+        'dealer_parts_interpreter_back_email' => 'parts_interpreter_back_email',
+        'dealer_parts_interpreter_back_mobile' => 'parts_interpreter_back_mobile',
+        'dealer_parts_interpreter_back_phone' => 'parts_interpreter_back_phone',
+        'dealer_parts_group' => 'parts_group',
+        'dealer_parts_group_email' => 'parts_group_email',
+        'dealer_parts_group_mobile' => 'parts_group_mobile',
+        'dealer_parts_group_phone' => 'parts_group_phone',
+    ];
 
-    // Also update billing email
-    update_user_meta($user_id, 'billing_email', $new_email ?: $user->user_email);
+    foreach ($fields as $meta_key => $post_key) {
+        if (isset($_POST[$post_key])) {
+            update_user_meta($id, $meta_key, sanitize_text_field($_POST[$post_key]));
+        }
+    }
+
+    // Also update billing fields for WooCommerce compatibility
+    update_user_meta($id, 'billing_email', $new_email ?: $user->user_email);
+    update_user_meta($id, 'billing_phone', sanitize_text_field($_POST['accounts_payable_phone']));
+    update_user_meta($id, 'billing_company', sanitize_text_field($_POST['dealer_company_name']));
+    update_user_meta($id, 'billing_address_1', sanitize_text_field($_POST['delivery_address_full']));
+    update_user_meta($id, 'billing_city', sanitize_text_field($_POST['suburb']));
+    update_user_meta($id, 'billing_state', sanitize_text_field($_POST['state']));
+    update_user_meta($id, 'billing_postcode', sanitize_text_field($_POST['post_code']));
 
     wp_send_json_success(['message' => 'Account updated successfully']);
 });

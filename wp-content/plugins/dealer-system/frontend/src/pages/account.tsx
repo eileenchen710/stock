@@ -8,15 +8,49 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/Alert'
 import '@/index.css'
 
 interface AccountData {
+  // Basic Info
   email: string
-  first_name: string
-  last_name: string
-  phone: string
-  company: string
-  address: string
-  city: string
+  dealer_group: string
+  dealer_company_name: string
+  business_name: string
+
+  // Address & Hours
+  delivery_address_full: string
+  suburb: string
   state: string
-  postcode: string
+  post_code: string
+  operating_hours_weekday: string
+  operating_hours_saturday: string
+
+  // Accounts Payable
+  accounts_payable: string
+  accounts_payable_email: string
+  accounts_payable_mobile: string
+  accounts_payable_phone: string
+
+  // Parts Manager
+  parts_manager: string
+  parts_manager_email: string
+  parts_manager_mobile: string
+  parts_manager_phone: string
+
+  // Parts Interpreter (Front Counter)
+  parts_interpreter_front: string
+  parts_interpreter_front_email: string
+  parts_interpreter_front_mobile: string
+  parts_interpreter_front_phone: string
+
+  // Parts Interpreter (Back Counter)
+  parts_interpreter_back: string
+  parts_interpreter_back_email: string
+  parts_interpreter_back_mobile: string
+  parts_interpreter_back_phone: string
+
+  // Parts Group
+  parts_group: string
+  parts_group_email: string
+  parts_group_mobile: string
+  parts_group_phone: string
 }
 
 declare global {
@@ -38,20 +72,40 @@ function AccountPage() {
 
   const [data, setData] = useState<AccountData>({
     email: '',
-    first_name: '',
-    last_name: '',
-    phone: '',
-    company: '',
-    address: '',
-    city: '',
+    dealer_group: '',
+    dealer_company_name: '',
+    business_name: '',
+    delivery_address_full: '',
+    suburb: '',
     state: '',
-    postcode: '',
+    post_code: '',
+    operating_hours_weekday: '',
+    operating_hours_saturday: '',
+    accounts_payable: '',
+    accounts_payable_email: '',
+    accounts_payable_mobile: '',
+    accounts_payable_phone: '',
+    parts_manager: '',
+    parts_manager_email: '',
+    parts_manager_mobile: '',
+    parts_manager_phone: '',
+    parts_interpreter_front: '',
+    parts_interpreter_front_email: '',
+    parts_interpreter_front_mobile: '',
+    parts_interpreter_front_phone: '',
+    parts_interpreter_back: '',
+    parts_interpreter_back_email: '',
+    parts_interpreter_back_mobile: '',
+    parts_interpreter_back_phone: '',
+    parts_group: '',
+    parts_group_email: '',
+    parts_group_mobile: '',
+    parts_group_phone: '',
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [alert, setAlert] = useState<{ show: boolean; message: string; error?: boolean } | null>(null)
 
-  // Fetch account data
   const fetchAccountData = async () => {
     setLoading(true)
     try {
@@ -121,9 +175,36 @@ function AccountPage() {
     }
   }
 
+  const InputField = ({ label, field, type = 'text' }: { label: string; field: keyof AccountData; type?: string }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <Input
+        type={type}
+        value={data[field]}
+        onChange={(e) => handleChange(field, e.target.value)}
+      />
+    </div>
+  )
+
+  const ContactCard = ({ title, nameField, emailField, mobileField, phoneField }: {
+    title: string
+    nameField: keyof AccountData
+    emailField: keyof AccountData
+    mobileField: keyof AccountData
+    phoneField: keyof AccountData
+  }) => (
+    <div className="space-y-3">
+      <h3 className="text-base font-semibold text-gray-900 border-b pb-2">{title}</h3>
+      <InputField label="Name" field={nameField} />
+      <InputField label="Email" field={emailField} type="email" />
+      <InputField label="Mobile" field={mobileField} type="tel" />
+      <InputField label="Phone" field={phoneField} type="tel" />
+    </div>
+  )
+
   return (
     <div className="page-container">
-      <div className="page-content" style={{ paddingTop: '120px', maxWidth: '600px', margin: '0 auto' }}>
+      <div className="page-content" style={{ paddingTop: '80px', width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '80px 16px 40px' }}>
         {/* Alert */}
         <AnimatePresence>
           {alert?.show && (
@@ -154,22 +235,22 @@ function AccountPage() {
 
         {/* Header */}
         <motion.div
-          className="mb-8 text-center"
+          className="mb-6 text-center"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-4xl font-bold mb-2">
+          <h1 className="text-3xl font-bold mb-1">
             <GradientText animationSpeed={4}>
               My Account
             </GradientText>
           </h1>
-          <p className="text-gray-500">Manage your account information</p>
+          <p className="text-gray-500 text-sm">Manage your dealer information</p>
         </motion.div>
 
         {/* Loading */}
         {loading ? (
           <motion.div
-            className="text-center py-16"
+            className="text-center py-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
@@ -184,123 +265,86 @@ function AccountPage() {
             transition={{ delay: 0.1 }}
             className="space-y-6"
           >
-            {/* Contact Information */}
-            <div className="bg-gray-50 rounded-xl p-6">
-              <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <Input
-                    type="email"
-                    value={data.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                    <Input
-                      type="text"
-                      value={data.first_name}
-                      onChange={(e) => handleChange('first_name', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                    <Input
-                      type="text"
-                      value={data.last_name}
-                      onChange={(e) => handleChange('last_name', e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                  <Input
-                    type="tel"
-                    value={data.phone}
-                    onChange={(e) => handleChange('phone', e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Business Information */}
-            <div className="bg-gray-50 rounded-xl p-6">
+            {/* Business Information - 3 columns */}
+            <div>
               <h2 className="text-lg font-semibold mb-4">Business Information</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-                  <Input
-                    type="text"
-                    value={data.company}
-                    onChange={(e) => handleChange('company', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                  <Input
-                    type="text"
-                    value={data.address}
-                    onChange={(e) => handleChange('address', e.target.value)}
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                    <Input
-                      type="text"
-                      value={data.city}
-                      onChange={(e) => handleChange('city', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                    <Input
-                      type="text"
-                      value={data.state}
-                      onChange={(e) => handleChange('state', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Postcode</label>
-                    <Input
-                      type="text"
-                      value={data.postcode}
-                      onChange={(e) => handleChange('postcode', e.target.value)}
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <InputField label="Email" field="email" type="email" />
+                <InputField label="Dealer Group" field="dealer_group" />
+                <InputField label="Dealer Company Name" field="dealer_company_name" />
+                <InputField label="Business Name" field="business_name" />
+                <InputField label="Delivery Address" field="delivery_address_full" />
+                <div className="grid grid-cols-3 gap-2">
+                  <InputField label="Suburb" field="suburb" />
+                  <InputField label="State" field="state" />
+                  <InputField label="Post Code" field="post_code" />
                 </div>
               </div>
             </div>
 
-            {/* Change Password Link */}
-            <div className="bg-gray-50 rounded-xl p-6">
-              <h2 className="text-lg font-semibold mb-2">Password</h2>
-              <p className="text-gray-500 text-sm mb-4">Need to change your password?</p>
-              <a
-                href="/my-account/lost-password/"
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-              >
-                Reset Password →
-              </a>
+            {/* Operating Hours */}
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Operating Hours</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InputField label="Monday - Friday" field="operating_hours_weekday" />
+                <InputField label="Saturday" field="operating_hours_saturday" />
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Button
-                type="submit"
-                disabled={saving}
-                className="w-full"
-              >
+            {/* Contacts - 2x2 grid on desktop */}
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Contacts</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ContactCard
+                  title="Accounts Payable"
+                  nameField="accounts_payable"
+                  emailField="accounts_payable_email"
+                  mobileField="accounts_payable_mobile"
+                  phoneField="accounts_payable_phone"
+                />
+                <ContactCard
+                  title="Parts Manager"
+                  nameField="parts_manager"
+                  emailField="parts_manager_email"
+                  mobileField="parts_manager_mobile"
+                  phoneField="parts_manager_phone"
+                />
+                <ContactCard
+                  title="Parts Interpreter (Front Counter)"
+                  nameField="parts_interpreter_front"
+                  emailField="parts_interpreter_front_email"
+                  mobileField="parts_interpreter_front_mobile"
+                  phoneField="parts_interpreter_front_phone"
+                />
+                <ContactCard
+                  title="Parts Interpreter (Back Counter)"
+                  nameField="parts_interpreter_back"
+                  emailField="parts_interpreter_back_email"
+                  mobileField="parts_interpreter_back_mobile"
+                  phoneField="parts_interpreter_back_phone"
+                />
+                <ContactCard
+                  title="Parts Group"
+                  nameField="parts_group"
+                  emailField="parts_group_email"
+                  mobileField="parts_group_mobile"
+                  phoneField="parts_group_phone"
+                />
+              </div>
+            </div>
+
+            {/* Password Link */}
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div>
+                <span className="text-sm text-gray-600">Need to change your password? </span>
+                <a href="/my-account/lost-password/" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                  Reset Password →
+                </a>
+              </div>
+              <Button type="submit" disabled={saving}>
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>
-            </motion.div>
+            </div>
           </motion.form>
         )}
       </div>
