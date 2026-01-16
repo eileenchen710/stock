@@ -235,8 +235,50 @@ add_action('wp_head', function() {
         a.button.cancel {
             display: none !important;
         }
+        .warehouse-order-header {
+            margin-bottom: 24px;
+        }
+        .warehouse-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+        .warehouse-back-link:hover {
+            color: #111827;
+        }
+        .warehouse-back-link svg {
+            width: 20px;
+            height: 20px;
+        }
+        .warehouse-order-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+        }
     </style>';
 });
+
+/**
+ * Add title and back button for warehouse managers on order detail page
+ */
+add_action('woocommerce_view_order', function($order_id) {
+    $user = wp_get_current_user();
+    if (!in_array('warehouse_manager', (array) $user->roles)) return;
+
+    echo '<div class="warehouse-order-header">';
+    echo '<a href="' . home_url('/warehouse-orders/') . '" class="warehouse-back-link">';
+    echo '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>';
+    echo 'Back to Orders';
+    echo '</a>';
+    echo '<h1 class="warehouse-order-title">Order #' . $order_id . '</h1>';
+    echo '</div>';
+}, 5);
 
 /**
  * Hide admin bar for dealers
