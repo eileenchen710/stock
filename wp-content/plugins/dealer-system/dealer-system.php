@@ -281,6 +281,71 @@ add_action('woocommerce_view_order', function($order_id) {
 }, 5);
 
 /**
+ * Send order notification to warehouse managers when dealer places order
+ */
+add_action('woocommerce_new_order', function($order_id) {
+    $order = wc_get_order($order_id);
+    if (!$order) return;
+
+    // Check if order is from a dealer
+    $customer_id = $order->get_customer_id();
+    if (!$customer_id) return;
+
+    $customer = get_user_by('ID', $customer_id);
+    if (!$customer || !in_array('dealer', (array) $customer->roles)) return;
+
+    // Get all warehouse managers
+    $warehouse_managers = get_users(['role' => 'warehouse_manager']);
+    if (empty($warehouse_managers)) return;
+
+    // Get dealer info
+    $dealer_name = get_user_meta($customer_id, 'dealer_business_name', true) ?: $customer->display_name;
+    $dealer_code = get_user_meta($customer_id, 'dealer_dealer_company_code', true) ?: $customer->user_login;
+
+    // Build email content
+    $subject = sprintf('[ZEEKR] New Order #%s from %s', $order_id, $dealer_name);
+
+    $message = sprintf(
+        "A new order has been placed by dealer %s (%s).\n\n" .
+        "Order #: %s\n" .
+        "Date: %s\n" .
+        "Total: $%s\n\n" .
+        "Order Items:\n",
+        $dealer_name,
+        $dealer_code,
+        $order_id,
+        $order->get_date_created()->format('Y-m-d H:i'),
+        $order->get_total()
+    );
+
+    foreach ($order->get_items() as $item) {
+        $product = $item->get_product();
+        $sku = $product ? $product->get_sku() : '';
+        $order_type = $item->get_meta('_dealer_order_type') ?: 'stock_order';
+        $message .= sprintf(
+            "- %s (SKU: %s) x %d - $%s [%s]\n",
+            $item->get_name(),
+            $sku ?: 'N/A',
+            $item->get_quantity(),
+            $item->get_total(),
+            $order_type
+        );
+    }
+
+    $message .= sprintf(
+        "\nView order: %s\n",
+        admin_url('post.php?post=' . $order_id . '&action=edit')
+    );
+
+    // Send to each warehouse manager
+    $headers = ['Content-Type: text/plain; charset=UTF-8'];
+
+    foreach ($warehouse_managers as $manager) {
+        wp_mail($manager->user_email, $subject, $message, $headers);
+    }
+}, 10, 1);
+
+/**
  * Hide admin bar for dealers
  */
 add_action('after_setup_theme', function () {
