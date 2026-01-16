@@ -348,7 +348,7 @@ add_action('woocommerce_new_order', function($order_id) {
 /**
  * Display dealer information on order detail page
  */
-add_action('woocommerce_order_details_after_customer_details', function($order) {
+add_action('woocommerce_after_order_details', function($order) {
     $customer_id = $order->get_customer_id();
     if (!$customer_id) return;
 
@@ -380,9 +380,8 @@ add_action('woocommerce_order_details_after_customer_details', function($order) 
     $parts_manager_phone = get_user_meta($customer_id, 'dealer_parts_manager_phone', true);
     ?>
     <style>
-        /* Hide billing address section */
-        .woocommerce-customer-details,
-        .woocommerce-columns--addresses {
+        /* Hide billing/shipping address section */
+        .woocommerce-customer-details {
             display: none !important;
         }
         .dealer-info-section {
