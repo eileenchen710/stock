@@ -1959,6 +1959,122 @@ add_action('wp_head', function () {
         .woocommerce-button.cancel {
             cursor: pointer;
         }
+
+        /* Lost Password page styles */
+        body.woocommerce-lost-password .woocommerce,
+        body.woocommerce-reset-password .woocommerce {
+            width: 100% !important;
+            max-width: 500px !important;
+            margin: 0 auto !important;
+            padding: 120px 24px 80px 24px !important;
+            box-sizing: border-box !important;
+        }
+
+        .lost-password-title {
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+            text-align: center !important;
+            margin-bottom: 8px !important;
+            background: linear-gradient(135deg, #111827, #6b7280, #9ca3af, #374151, #6b7280, #111827) !important;
+            background-size: 200% 200% !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            animation: gradientShift 4s ease-in-out infinite !important;
+        }
+
+        .lost-password-subtitle {
+            text-align: center !important;
+            color: #6b7280 !important;
+            margin-bottom: 32px !important;
+        }
+
+        body.woocommerce-lost-password .woocommerce-ResetPassword,
+        body.woocommerce-reset-password .woocommerce-ResetPassword {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        body.woocommerce-lost-password .woocommerce-ResetPassword p,
+        body.woocommerce-reset-password .woocommerce-ResetPassword p {
+            margin-bottom: 16px;
+            color: #374151;
+        }
+
+        body.woocommerce-lost-password .woocommerce-ResetPassword label,
+        body.woocommerce-reset-password .woocommerce-ResetPassword label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        body.woocommerce-lost-password .woocommerce-ResetPassword input[type="text"],
+        body.woocommerce-lost-password .woocommerce-ResetPassword input[type="email"],
+        body.woocommerce-reset-password .woocommerce-ResetPassword input[type="password"] {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            border: 1px solid #e5e7eb !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            margin-bottom: 16px !important;
+            box-sizing: border-box !important;
+        }
+
+        body.woocommerce-lost-password .woocommerce-ResetPassword input:focus,
+        body.woocommerce-reset-password .woocommerce-ResetPassword input:focus {
+            outline: none !important;
+            border-color: #111827 !important;
+            box-shadow: 0 0 0 2px rgba(17, 24, 39, 0.1) !important;
+        }
+
+        body.woocommerce-lost-password .woocommerce-ResetPassword button,
+        body.woocommerce-reset-password .woocommerce-ResetPassword button {
+            width: 100% !important;
+            padding: 12px 24px !important;
+            background: #111827 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            transition: background 0.2s !important;
+        }
+
+        body.woocommerce-lost-password .woocommerce-ResetPassword button:hover,
+        body.woocommerce-reset-password .woocommerce-ResetPassword button:hover {
+            background: #374151 !important;
+        }
+
+        /* Reset link sent message */
+        body.woocommerce-lost-password .woocommerce-message,
+        body.woocommerce-reset-password .woocommerce-message {
+            background: #dcfce7 !important;
+            border: 1px solid #86efac !important;
+            color: #166534 !important;
+            padding: 16px !important;
+            border-radius: 8px !important;
+            margin-bottom: 24px !important;
+        }
+
+        /* Back to login link */
+        .back-to-login {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .back-to-login a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .back-to-login a:hover {
+            color: #111827;
+        }
     </style>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -1973,6 +2089,47 @@ add_action('wp_head', function () {
         });
     });
     </script>
+    <?php
+});
+
+/**
+ * Add title and back link to lost password page
+ */
+add_action('woocommerce_before_lost_password_form', function() {
+    $is_reset_sent = isset($_GET['reset-link-sent']) && $_GET['reset-link-sent'] === 'true';
+    ?>
+    <h1 class="lost-password-title">
+        <?php echo $is_reset_sent ? 'Check Your Email' : 'Reset Password'; ?>
+    </h1>
+    <p class="lost-password-subtitle">
+        <?php echo $is_reset_sent ? 'We\'ve sent you a password reset link' : 'Enter your email to receive a reset link'; ?>
+    </p>
+    <?php
+});
+
+add_action('woocommerce_after_lost_password_form', function() {
+    ?>
+    <div class="back-to-login">
+        <a href="/login/">← Back to Login</a>
+    </div>
+    <?php
+});
+
+/**
+ * Add title to reset password form (when setting new password)
+ */
+add_action('woocommerce_before_reset_password_form', function() {
+    ?>
+    <h1 class="lost-password-title">Set New Password</h1>
+    <p class="lost-password-subtitle">Enter your new password below</p>
+    <?php
+});
+
+add_action('woocommerce_after_reset_password_form', function() {
+    ?>
+    <div class="back-to-login">
+        <a href="/login/">← Back to Login</a>
+    </div>
     <?php
 });
 
