@@ -237,9 +237,11 @@ function InventoryPage() {
     setBackorderDialog({ open: false, product: null, quantity: 0, reason: 'out_of_stock' })
   }
 
+  const showCenteredSearch = !hasSearched && !isSearching && products.length === 0
+
   return (
     <div className="page-container">
-      <div className="page-content">
+      <div className="page-content" style={{ paddingTop: '120px' }}>
         {/* Alert */}
         <AnimatePresence>
           {alert?.show && (
@@ -307,49 +309,56 @@ function InventoryPage() {
           </DialogFooter>
         </Dialog>
 
-        {/* Header */}
-        <motion.div
-          className="mb-8 text-center"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-4xl font-bold mb-2">
-            <GradientText animationSpeed={4}>
-              Inventory
-            </GradientText>
-          </h1>
-          <p className="text-gray-500">Browse and order products</p>
-        </motion.div>
+        {/* Search Section - Centered when no results */}
+        <div className={showCenteredSearch ? "fixed inset-0 flex items-center justify-center" : ""}>
+          <div className={showCenteredSearch ? "w-full max-w-md px-4" : ""}>
+            {/* Header */}
+            <motion.div
+              className="mb-8 text-center"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <h1 className="text-4xl font-bold mb-2">
+                <GradientText animationSpeed={4}>
+                  Inventory
+                </GradientText>
+              </h1>
+              <p className="text-gray-500">Browse and order products</p>
+            </motion.div>
 
-        {/* Search */}
-        <motion.div
-          className="!mb-4 flex justify-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Input
-            type="text"
-            placeholder="Search by SKU or product name..."
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="max-w-md w-full !rounded-full"
-          />
-        </motion.div>
+            {/* Search */}
+            <motion.div
+              className="!mb-4 flex justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Input
+                type="text"
+                placeholder="Search by SKU or product name..."
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="max-w-md w-full !rounded-full"
+              />
+            </motion.div>
 
-        {/* Initial State - No Search Yet */}
-        {!hasSearched && !isSearching && (
-          <motion.div
-            className="text-center py-16"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <p className="text-gray-500 text-lg">Enter SKU or product name to search</p>
-          </motion.div>
-        )}
+            {/* Initial State Hint */}
+            {showCenteredSearch && (
+              <motion.div
+                className="text-center mt-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <p className="text-gray-400 text-base flex items-center justify-center gap-2">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Enter SKU or product name to search
+                </p>
+              </motion.div>
+            )}
+          </div>
+        </div>
 
         {/* Loading State */}
         {(loading || isSearching) && (
