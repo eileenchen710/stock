@@ -203,7 +203,8 @@ function WarehouseOrdersPage() {
           <select
             value={statusFilter}
             onChange={(e) => handleStatusFilterChange(e.target.value)}
-            className="h-10 px-4 py-0 text-sm border border-gray-200 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+            className="h-10 text-sm border border-gray-200 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+            style={{ padding: '0 15px' }}
           >
             <option value="all">All Statuses</option>
             {Object.entries(statuses).map(([value, label]) => (
@@ -284,8 +285,9 @@ function WarehouseOrdersPage() {
                             value={order.status}
                             onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
                             disabled={updating === order.id}
-                            className="h-10 px-4 py-0 text-sm border border-gray-200 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                            className="h-10 text-sm border border-gray-200 rounded-full bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                             style={{
+                              padding: '0 15px',
                               ...(() => {
                                 const style = STATUS_COLORS[order.status] || 'background:#f3f4f6;color:#6b7280;'
                                 const parts = style.split(';').filter(Boolean)
