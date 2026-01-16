@@ -710,13 +710,23 @@ add_action('wp_enqueue_scripts', function () {
         wp_enqueue_script('dealer-orders', $dist_url . 'js/orders.js', [], time(), true);
         wp_localize_script('dealer-orders', 'dealerOrders', dealer_get_orders_data());
     }
+
+    // Account page
+    if (is_page('account') && is_user_logged_in()) {
+        wp_enqueue_script('dealer-account', $dist_url . 'js/account.js', [], time(), true);
+        wp_localize_script('dealer-account', 'dealerAccount', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('dealer_get_account'),
+            'updateNonce' => wp_create_nonce('dealer_update_account'),
+        ]);
+    }
 });
 
 /**
  * Add type="module" to React scripts
  */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
-    $module_handles = ['dealer-login', 'dealer-inventory', 'dealer-cart', 'dealer-orders', 'dealer-checkout'];
+    $module_handles = ['dealer-login', 'dealer-inventory', 'dealer-cart', 'dealer-orders', 'dealer-checkout', 'dealer-account'];
 
     if (in_array($handle, $module_handles)) {
         $tag = str_replace('<script ', '<script type="module" ', $tag);
@@ -1245,6 +1255,17 @@ add_shortcode('dealer_checkout', function () {
 });
 
 /**
+ * Dealer Account shortcode - allows dealers to manage their account info
+ */
+add_shortcode('dealer_account', function () {
+    if (!is_user_logged_in()) {
+        return '<p>Please login to view your account.</p>';
+    }
+
+    return '<div id="dealer-account-root"></div>';
+});
+
+/**
  * Warehouse Orders shortcode - shows all orders for warehouse managers
  */
 add_shortcode('warehouse_orders', function () {
@@ -1662,6 +1683,20 @@ add_action('wp_head', function () {
             max-width: 80vw !important;
             margin: 0 auto !important;
             padding-top: 120px !important;
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            overflow-x: hidden !important;
+        }
+
+        #dealer-account-root {
+            min-height: 100vh;
+            width: 80vw !important;
+            max-width: 80vw !important;
+            margin: 0 auto !important;
+            padding-top: 80px !important;
             display: flex;
             flex-wrap: nowrap;
             flex-direction: column;
@@ -2452,6 +2487,7 @@ add_action('wp_body_open', function () {
                         <span class="badge"><?php echo $pending_count; ?></span>
                     <?php endif; ?>
                 </span>
+                <a href="<?php echo home_url('/account/'); ?>" <?php echo is_page('account') ? 'class="active"' : ''; ?>>My Account</a>
                 <span class="dealer-credit">Balance: $<?php echo number_format(dealer_get_funds_balance(), 2); ?></span>
                 <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
             <?php endif; ?>
@@ -2892,12 +2928,12 @@ add_action('wp_ajax_dealer_remove_from_cart', function() {
  */
 add_action('wp_ajax_dealer_update_cart_item', function() {
     check_ajax_referer('dealer_cart_action', 'nonce');
-    
+
     $cart_item_key = sanitize_text_field($_POST['cart_item_key']);
     $quantity = intval($_POST['quantity']);
-    
+
     if ($quantity < 1) $quantity = 1;
-    
+
     if (WC()->cart->set_quantity($cart_item_key, $quantity)) {
         WC()->cart->calculate_totals();
         wp_send_json_success([
@@ -2907,6 +2943,66 @@ add_action('wp_ajax_dealer_update_cart_item', function() {
     } else {
         wp_send_json_error(['message' => 'Could not update cart']);
     }
+});
+
+/**
+ * AJAX handler for getting dealer account data
+ */
+add_action('wp_ajax_dealer_get_account', function() {
+    check_ajax_referer('dealer_get_account', 'nonce');
+
+    $user = wp_get_current_user();
+
+    wp_send_json_success([
+        'email' => $user->user_email,
+        'first_name' => get_user_meta($user->ID, 'first_name', true),
+        'last_name' => get_user_meta($user->ID, 'last_name', true),
+        'phone' => get_user_meta($user->ID, 'billing_phone', true),
+        'company' => get_user_meta($user->ID, 'billing_company', true),
+        'address' => get_user_meta($user->ID, 'billing_address_1', true),
+        'city' => get_user_meta($user->ID, 'billing_city', true),
+        'state' => get_user_meta($user->ID, 'billing_state', true),
+        'postcode' => get_user_meta($user->ID, 'billing_postcode', true),
+    ]);
+});
+
+/**
+ * AJAX handler for updating dealer account data
+ */
+add_action('wp_ajax_dealer_update_account', function() {
+    check_ajax_referer('dealer_update_account', 'nonce');
+
+    $user = wp_get_current_user();
+    $user_id = $user->ID;
+
+    // Update email if changed
+    $new_email = sanitize_email($_POST['email']);
+    if ($new_email && $new_email !== $user->user_email) {
+        // Check if email is already in use
+        if (email_exists($new_email) && email_exists($new_email) !== $user_id) {
+            wp_send_json_error(['message' => 'This email is already in use']);
+            return;
+        }
+        wp_update_user([
+            'ID' => $user_id,
+            'user_email' => $new_email,
+        ]);
+    }
+
+    // Update user meta
+    update_user_meta($user_id, 'first_name', sanitize_text_field($_POST['first_name']));
+    update_user_meta($user_id, 'last_name', sanitize_text_field($_POST['last_name']));
+    update_user_meta($user_id, 'billing_phone', sanitize_text_field($_POST['phone']));
+    update_user_meta($user_id, 'billing_company', sanitize_text_field($_POST['company']));
+    update_user_meta($user_id, 'billing_address_1', sanitize_text_field($_POST['address']));
+    update_user_meta($user_id, 'billing_city', sanitize_text_field($_POST['city']));
+    update_user_meta($user_id, 'billing_state', sanitize_text_field($_POST['state']));
+    update_user_meta($user_id, 'billing_postcode', sanitize_text_field($_POST['postcode']));
+
+    // Also update billing email
+    update_user_meta($user_id, 'billing_email', $new_email ?: $user->user_email);
+
+    wp_send_json_success(['message' => 'Account updated successfully']);
 });
 
 /**

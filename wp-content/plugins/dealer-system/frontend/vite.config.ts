@@ -22,6 +22,7 @@ export default defineConfig({
         cart: path.resolve(__dirname, 'src/pages/cart.tsx'),
         orders: path.resolve(__dirname, 'src/pages/orders.tsx'),
         checkout: path.resolve(__dirname, 'src/pages/checkout.tsx'),
+        account: path.resolve(__dirname, 'src/pages/account.tsx'),
         'warehouse-orders': path.resolve(__dirname, 'src/pages/warehouse-orders.tsx'),
         'warehouse-order-detail': path.resolve(__dirname, 'src/pages/warehouse-order-detail.tsx'),
       },
