@@ -2000,6 +2000,18 @@ add_action('wp_body_open', function () {
         ]);
         $processing_count = count($processing_orders);
     }
+
+    // Count pending payment orders for dealers
+    $pending_count = 0;
+    if (in_array('dealer', (array) $user->roles) && function_exists('wc_get_orders')) {
+        $pending_orders = wc_get_orders([
+            'status' => 'pending',
+            'customer_id' => $user->ID,
+            'limit' => -1,
+            'return' => 'ids',
+        ]);
+        $pending_count = count($pending_orders);
+    }
     ?>
     <style>
         .dealer-header-bar {
@@ -2268,7 +2280,12 @@ add_action('wp_body_open', function () {
                 <!-- Dealer Menu -->
                 <a href="<?php echo home_url('/inventory/'); ?>" <?php echo is_page('inventory') ? 'class="active"' : ''; ?>>Inventory</a>
                 <a href="<?php echo wc_get_cart_url(); ?>">Cart</a>
-                <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
+                <span class="dealer-nav-badge">
+                    <a href="<?php echo wc_get_account_endpoint_url('orders'); ?>">My Orders</a>
+                    <?php if ($pending_count > 0): ?>
+                        <span class="badge"><?php echo $pending_count; ?></span>
+                    <?php endif; ?>
+                </span>
                 <span class="dealer-credit">Balance: $<?php echo number_format(dealer_get_funds_balance(), 2); ?></span>
                 <a href="<?php echo esc_url(dealer_logout_url()); ?>" class="dealer-logout">Logout</a>
             <?php endif; ?>
