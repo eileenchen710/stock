@@ -380,6 +380,11 @@ add_action('woocommerce_order_details_after_customer_details', function($order) 
     $parts_manager_phone = get_user_meta($customer_id, 'dealer_parts_manager_phone', true);
     ?>
     <style>
+        /* Hide billing address section */
+        .woocommerce-customer-details,
+        .woocommerce-columns--addresses {
+            display: none !important;
+        }
         .dealer-info-section {
             margin-top: 32px;
             padding: 24px;
