@@ -1001,7 +1001,7 @@ add_action('wp_ajax_warehouse_get_orders', function() {
     $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
 
     // Exclude draft and refunded statuses
-    $excluded_statuses = ['draft', 'refunded', 'auto-draft', 'trash'];
+    $excluded_statuses = ['checkout-draft', 'refunded', 'auto-draft', 'trash', 'draft'];
 
     $args = [
         'limit' => 100,
