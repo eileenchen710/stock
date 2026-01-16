@@ -39,6 +39,44 @@ add_action('init', function () {
  * Helper function to get dealer logout URL
  */
 function dealer_logout_url() {
+
+/**
+ * Get dealer user info
+ */
+function dealer_get_user_info($user_id) {
+    if (!$user_id) return null;
+    return [
+        "dealer_group" => get_user_meta($user_id, "dealer_dealer_group", true),
+        "dealer_company_name" => get_user_meta($user_id, "dealer_dealer_company_name", true),
+        "business_name" => get_user_meta($user_id, "dealer_business_name", true),
+        "delivery_address_full" => get_user_meta($user_id, "dealer_delivery_address_full", true),
+        "suburb" => get_user_meta($user_id, "dealer_suburb", true),
+        "state" => get_user_meta($user_id, "dealer_state", true),
+        "post_code" => get_user_meta($user_id, "dealer_post_code", true),
+        "operating_hours_weekday" => get_user_meta($user_id, "dealer_operating_hours_weekday", true),
+        "operating_hours_saturday" => get_user_meta($user_id, "dealer_operating_hours_saturday", true),
+        "accounts_payable" => get_user_meta($user_id, "dealer_accounts_payable", true),
+        "accounts_payable_email" => get_user_meta($user_id, "dealer_accounts_payable_email", true),
+        "accounts_payable_mobile" => get_user_meta($user_id, "dealer_accounts_payable_mobile", true),
+        "accounts_payable_phone" => get_user_meta($user_id, "dealer_accounts_payable_phone", true),
+        "parts_manager" => get_user_meta($user_id, "dealer_parts_manager", true),
+        "parts_manager_email" => get_user_meta($user_id, "dealer_parts_manager_email", true),
+        "parts_manager_mobile" => get_user_meta($user_id, "dealer_parts_manager_mobile", true),
+        "parts_manager_phone" => get_user_meta($user_id, "dealer_parts_manager_phone", true),
+        "parts_interpreter_front" => get_user_meta($user_id, "dealer_parts_interpreter_front", true),
+        "parts_interpreter_front_email" => get_user_meta($user_id, "dealer_parts_interpreter_front_email", true),
+        "parts_interpreter_front_mobile" => get_user_meta($user_id, "dealer_parts_interpreter_front_mobile", true),
+        "parts_interpreter_front_phone" => get_user_meta($user_id, "dealer_parts_interpreter_front_phone", true),
+        "parts_interpreter_back" => get_user_meta($user_id, "dealer_parts_interpreter_back", true),
+        "parts_interpreter_back_email" => get_user_meta($user_id, "dealer_parts_interpreter_back_email", true),
+        "parts_interpreter_back_mobile" => get_user_meta($user_id, "dealer_parts_interpreter_back_mobile", true),
+        "parts_interpreter_back_phone" => get_user_meta($user_id, "dealer_parts_interpreter_back_phone", true),
+        "parts_group" => get_user_meta($user_id, "dealer_parts_group", true),
+        "parts_group_email" => get_user_meta($user_id, "dealer_parts_group_email", true),
+        "parts_group_mobile" => get_user_meta($user_id, "dealer_parts_group_mobile", true),
+        "parts_group_phone" => get_user_meta($user_id, "dealer_parts_group_phone", true),
+    ];
+}
     return add_query_arg([
         'dealer_logout' => '1',
         '_nonce' => wp_create_nonce('dealer_logout')
@@ -1491,6 +1529,7 @@ add_action('wp_ajax_warehouse_get_order_detail', function() {
         'phone' => $order->get_billing_phone(),
         'items' => $items,
         'notes' => $notes,
+        'dealer_info' => dealer_get_user_info($order->get_customer_id()),
     ];
 
     wp_send_json_success([

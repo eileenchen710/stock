@@ -16,6 +16,38 @@ interface OrderItem {
   order_type: string
 }
 
+interface DealerInfo {
+  dealer_group: string
+  dealer_company_name: string
+  business_name: string
+  delivery_address_full: string
+  suburb: string
+  state: string
+  post_code: string
+  operating_hours_weekday: string
+  operating_hours_saturday: string
+  accounts_payable: string
+  accounts_payable_email: string
+  accounts_payable_mobile: string
+  accounts_payable_phone: string
+  parts_manager: string
+  parts_manager_email: string
+  parts_manager_mobile: string
+  parts_manager_phone: string
+  parts_interpreter_front: string
+  parts_interpreter_front_email: string
+  parts_interpreter_front_mobile: string
+  parts_interpreter_front_phone: string
+  parts_interpreter_back: string
+  parts_interpreter_back_email: string
+  parts_interpreter_back_mobile: string
+  parts_interpreter_back_phone: string
+  parts_group: string
+  parts_group_email: string
+  parts_group_mobile: string
+  parts_group_phone: string
+}
+
 interface OrderDetail {
   id: number
   status: string
@@ -27,6 +59,7 @@ interface OrderDetail {
   phone: string
   items: OrderItem[]
   notes: string
+  dealer_info: DealerInfo
 }
 
 declare global {
@@ -153,6 +186,34 @@ function WarehouseOrderDetailPage() {
     return styleObj
   }
 
+  const InfoItem = ({ label, value }: { label: string; value: string }) => (
+    <div>
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className="font-medium text-gray-900">{value || '-'}</p>
+    </div>
+  )
+
+  const ContactCard = ({ title, name, email, mobile, phone }: {
+    title: string
+    name: string
+    email: string
+    mobile: string
+    phone: string
+  }) => {
+    if (!name && !email && !mobile && !phone) return null
+    return (
+      <div className="bg-white rounded-lg p-4 border border-gray-100">
+        <h4 className="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">{title}</h4>
+        <div className="space-y-2 text-sm">
+          {name && <div><span className="text-gray-500">Name:</span> <span className="text-gray-900">{name}</span></div>}
+          {email && <div><span className="text-gray-500">Email:</span> <span className="text-gray-900">{email}</span></div>}
+          {mobile && <div><span className="text-gray-500">Mobile:</span> <span className="text-gray-900">{mobile}</span></div>}
+          {phone && <div><span className="text-gray-500">Phone:</span> <span className="text-gray-900">{phone}</span></div>}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="page-container">
       <div className="page-content" style={{ paddingTop: '120px' }}>
@@ -255,20 +316,88 @@ function WarehouseOrderDetailPage() {
             >
               <h2 className="text-lg font-semibold mb-4">Customer Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-gray-500">Name</p>
-                  <p className="font-medium text-gray-900">{order.customer}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-gray-900">{order.email || '-'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Phone</p>
-                  <p className="font-medium text-gray-900">{order.phone || '-'}</p>
-                </div>
+                <InfoItem label="Name" value={order.customer} />
+                <InfoItem label="Email" value={order.email} />
+                <InfoItem label="Phone" value={order.phone} />
               </div>
             </motion.div>
+
+            {/* Dealer Information */}
+            {order.dealer_info && (
+              <motion.div
+                className="mb-8 bg-gray-50 rounded-xl p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
+                <h2 className="text-lg font-semibold mb-4">Dealer Information</h2>
+
+                {/* Business Info */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-600 mb-3">Business Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <InfoItem label="Dealer Group" value={order.dealer_info.dealer_group} />
+                    <InfoItem label="Company Name" value={order.dealer_info.dealer_company_name} />
+                    <InfoItem label="Business Name" value={order.dealer_info.business_name} />
+                    <InfoItem label="Delivery Address" value={order.dealer_info.delivery_address_full} />
+                    <InfoItem label="Suburb" value={order.dealer_info.suburb} />
+                    <InfoItem label="State" value={order.dealer_info.state} />
+                    <InfoItem label="Post Code" value={order.dealer_info.post_code} />
+                  </div>
+                </div>
+
+                {/* Operating Hours */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-600 mb-3">Operating Hours</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <InfoItem label="Monday - Friday" value={order.dealer_info.operating_hours_weekday} />
+                    <InfoItem label="Saturday" value={order.dealer_info.operating_hours_saturday} />
+                  </div>
+                </div>
+
+                {/* Contacts */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-600 mb-3">Contacts</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <ContactCard
+                      title="Accounts Payable"
+                      name={order.dealer_info.accounts_payable}
+                      email={order.dealer_info.accounts_payable_email}
+                      mobile={order.dealer_info.accounts_payable_mobile}
+                      phone={order.dealer_info.accounts_payable_phone}
+                    />
+                    <ContactCard
+                      title="Parts Manager"
+                      name={order.dealer_info.parts_manager}
+                      email={order.dealer_info.parts_manager_email}
+                      mobile={order.dealer_info.parts_manager_mobile}
+                      phone={order.dealer_info.parts_manager_phone}
+                    />
+                    <ContactCard
+                      title="Parts Interpreter (Front)"
+                      name={order.dealer_info.parts_interpreter_front}
+                      email={order.dealer_info.parts_interpreter_front_email}
+                      mobile={order.dealer_info.parts_interpreter_front_mobile}
+                      phone={order.dealer_info.parts_interpreter_front_phone}
+                    />
+                    <ContactCard
+                      title="Parts Interpreter (Back)"
+                      name={order.dealer_info.parts_interpreter_back}
+                      email={order.dealer_info.parts_interpreter_back_email}
+                      mobile={order.dealer_info.parts_interpreter_back_mobile}
+                      phone={order.dealer_info.parts_interpreter_back_phone}
+                    />
+                    <ContactCard
+                      title="Parts Group"
+                      name={order.dealer_info.parts_group}
+                      email={order.dealer_info.parts_group_email}
+                      mobile={order.dealer_info.parts_group_mobile}
+                      phone={order.dealer_info.parts_group_phone}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
             {/* Order Items */}
             <motion.div
